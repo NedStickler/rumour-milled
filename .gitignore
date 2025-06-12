@@ -194,3 +194,4 @@ cython_debug/
 .cursorindexingignore
 
 el_plan.md
+data/
