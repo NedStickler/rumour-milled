@@ -23,9 +23,3 @@ def preprocess(text: str) -> str:
         if word.isalpha() and word not in stop_words
     ]
     return " ".join(cleaned)
-
-
-if __name__ == "__main__":
-    text = "This is a string! What do you think about this string?"
-    preprocessed_text = preprocess(text)
-    print(preprocessed_text)
