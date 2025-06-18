@@ -31,3 +31,7 @@ def preprocess(text: str) -> str:
         if word.isalpha() and word not in stop_words
     ]
     return " ".join(cleaned)
+
+
+def apply_preprocess(x):
+    return x.apply(preprocess)
