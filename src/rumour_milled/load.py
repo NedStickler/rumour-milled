@@ -18,7 +18,10 @@ def load_data(label: Literal["combined", "true", "fake"] = "combined") -> pd.Dat
 
 def load_model(
     model: Literal[
-        "logisticregression", "randomforestclassifier"
+        "logisticregression",
+        "randomforestclassifier",
+        "gradientboostingclassifier",
+        "xgbclassifier",
     ] = "logisticregression",
     embedding: Literal["tfidf"] = "tfidf",
 ):
