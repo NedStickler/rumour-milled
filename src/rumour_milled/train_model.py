@@ -1,10 +1,11 @@
 from sklearn.preprocessing import FunctionTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
-from rumour_milled.preprocessing import apply_preprocess
+from rumour_milled.preprocessing import preprocess
+import numpy as np
 
 
-def train_model(X, y, model, embedding, params={}) -> Pipeline:
+def train_model(X, y, model, embedding) -> Pipeline:
     """Train a model using the TFIDF vectoriser.
 
     Args:
@@ -20,9 +21,9 @@ def train_model(X, y, model, embedding, params={}) -> Pipeline:
     embedding_name = embedding.__name__.lower()
     pipeline = Pipeline(
         [
-            ("clean", FunctionTransformer(apply_preprocess)),
+            ("clean", FunctionTransformer(np.vectorize(preprocess))),
             (embedding_name, embedding()),
-            (model_name, model(**params)),
+            (model_name, model()),
         ]
     )
     pipeline.fit(X, y)

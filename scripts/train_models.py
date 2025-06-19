@@ -6,7 +6,8 @@ from xgboost import XGBClassifier
 from rumour_milled.train_model import train_model
 from rumour_milled.load import load_data
 from rumour_milled.save import save_model
-from rumour_milled.encoders import SentenceTransformerEncoder
+from rumour_milled.encoders import SentenceTransformerVectoriser
+from tqdm import tqdm
 
 
 if __name__ == "__main__":
@@ -15,25 +16,21 @@ if __name__ == "__main__":
         data["title"], data["fake_news"], test_size=0.2, random_state=42
     )
 
-    # logistic_regression = train_model(
-    #     X_train, y_train, LogisticRegression, TfidfVectorizer
-    # )
-    # random_forest = train_model(
-    #     X_train, y_train, RandomForestClassifier, TfidfVectorizer
-    # )
-    # gradient_boosting = train_model(
-    #     X_train, y_train, GradientBoostingClassifier, TfidfVectorizer
-    # )
-    # xgboost = train_model(X_train, y_train, XGBClassifier, TfidfVectorizer)
+    models = [
+        LogisticRegression,
+        RandomForestClassifier,
+        GradientBoostingClassifier,
+        XGBClassifier,
+    ]
+    encoders = [TfidfVectorizer, SentenceTransformerVectoriser]
 
-    logistic_regression_transformer = train_model(
-        X_train, y_train, LogisticRegression, SentenceTransformerEncoder
-    )
-
-    # save_model(logistic_regression, "models/logisticregression_tfidf.pkl")
-    # save_model(random_forest, "models/randomforestclassifier_tfidf.pkl")
-    # save_model(gradient_boosting, "models/gradientboostingclassifier_tfidf.pkl")
-    # save_model(random_forest, "models/xgbclassifier_tfidf.pkl")
-    save_model(
-        logistic_regression_transformer, "models/logisticregression_allminilml6v2.pkl"
-    )
+    for model in tqdm(
+        models, bar_format="{l_bar}{bar:10}{r_bar}", desc="Training models"
+    ):
+        model_name = model.__name__.lower()
+        for encoder in encoders:
+            encoder_name = encoder.__name__.lower()
+            save_model(
+                train_model(X_train, y_train, model, encoder),
+                f"models/{model_name}_{encoder_name}.pkl",
+            )

@@ -23,6 +23,8 @@ def load_model(
         "gradientboostingclassifier",
         "xgbclassifier",
     ] = "logisticregression",
-    embedding: Literal["tfidf"] = "tfidf",
+    embedding: Literal[
+        "tfidfvectorizer", "sentencetransformervectoriser"
+    ] = "tfidfvectorizer",
 ):
     return joblib.load(f"models/{model}_{embedding}.pkl")
