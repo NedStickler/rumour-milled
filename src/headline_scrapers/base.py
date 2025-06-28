@@ -32,13 +32,12 @@ class BaseScraper(ABC):
             context = browser.new_context()
             self.page = context.new_page()
             self.page.goto(self.root, wait_until="load")
-            self.cookies()
+            self.deal_with_cookies()
             # self.page.wait_for_load_state("networkidle")
             self.process_queue()
             self.save()
 
-    @abstractmethod
-    def cookies(self) -> None:
+    def deal_with_cookies(self) -> None:
         return
 
     def process_queue(self) -> None:

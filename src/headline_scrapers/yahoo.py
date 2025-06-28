@@ -14,7 +14,7 @@ class YahooScraper(BaseScraper):
     ) -> None:
         super().__init__(root, locator_strings, ignore_robots_txt, max_pages, save_path)
 
-    def cookies(self) -> None:
+    def deal_with_cookies(self) -> None:
         self.page.goto(self.root, wait_until="load")
         self.page.locator("button", has_text="reject").click()
 
