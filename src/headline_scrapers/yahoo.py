@@ -9,16 +9,14 @@ class YahooScraper(BaseScraper):
         root: str,
         locator_strings: list[str],
         ignore_robots_txt: bool = False,
-        max_depth: int = 3,
+        max_pages: int = 3,
         save_path: PathLike = ".",
     ) -> None:
-        super().__init__(root, locator_strings, ignore_robots_txt, max_depth, save_path)
+        super().__init__(root, locator_strings, ignore_robots_txt, max_pages, save_path)
 
-    def cookies(self):
-        return
-
-    def start(self):
-        return
+    def cookies(self) -> None:
+        self.page.goto(self.root, wait_until="load")
+        self.page.locator("button", has_text="reject").click()
 
 
 def test_playwright():
@@ -40,4 +38,14 @@ def test_playwright():
 
 
 if __name__ == "__main__":
-    yahoo_scraper = YahooScraper("https://news.yahoo.com/", [])
+    yahoo_scraper = YahooScraper(
+        "https://news.yahoo.com/",
+        [
+            '[data-test-locator="headline"]',
+            '[data-test-locator="item-title"]',
+            '[data-test-locator="stream-item-title"]',
+        ],
+        max_pages=50,
+        save_path="data/raw/scraped_yahoo_headlines.json",
+    )
+    yahoo_scraper.start()

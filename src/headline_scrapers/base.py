@@ -1,7 +1,9 @@
-from playwright import sync_api
+from playwright.sync_api import sync_playwright
 from queue import SimpleQueue
 from os import PathLike
 from abc import ABC, abstractmethod
+from validators.url import url
+from validators.utils import ValidationError
 import json
 
 
@@ -11,13 +13,13 @@ class BaseScraper(ABC):
         root: str,
         locator_strings: list[str],
         ignore_robots_txt: bool = False,
-        max_depth: int = 3,
+        max_pages: int = 3,
         save_path: PathLike = ".",
     ) -> None:
         self.root = root
         self.locator_strings = locator_strings
         self.ignore_robots_txt = ignore_robots_txt
-        self.max_depth = max_depth
+        self.max_pages = max_pages
         self.save_path = save_path
         self.depth = 0
         self.queue = SimpleQueue()
@@ -25,13 +27,13 @@ class BaseScraper(ABC):
         self.items = []
 
     def start(self) -> None:
-        with sync_api as p:
+        with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             context = browser.new_context()
             self.page = context.new_page()
             self.page.goto(self.root, wait_until="load")
             self.cookies()
-            self.page.wait_for_load_state("networkidle")
+            # self.page.wait_for_load_state("networkidle")
             self.process_queue()
             self.save()
 
@@ -41,21 +43,27 @@ class BaseScraper(ABC):
 
     def process_queue(self) -> None:
         self.queue.put(self.root)
-        while not self.queue.empty() or self.depth < self.max_depth:
+        while not self.queue.empty() and self.depth < self.max_pages:
             next_page = self.queue.get()
+
             if next_page in self.visited:
                 continue
-            if next_page != self.root:
+            if next_page[0] == "/":
                 next_page = self.root + next_page
+            if url(next_page) is not True:
+                continue
 
+            print(f"Scraping {next_page}")
             self.page.goto(next_page)
+            # self.page.wait_for_load_state("networkidle")
             self.visited.append(next_page)
 
             elements = self.get_elements()
             hrefs = self.get_hrefs()
-            self.items += elements
+            for element in elements:
+                self.items.append(element.inner_text())
             for href in hrefs:
-                self.queue.put(self.root + href)
+                self.queue.put(href)
             self.depth += 1
 
     def get_elements(self) -> list[str]:
