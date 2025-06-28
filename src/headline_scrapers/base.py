@@ -1,11 +1,11 @@
-from playwright.sync_api import sync_playwright
+from playwright import sync_api
 from queue import SimpleQueue
 from os import PathLike
 from abc import ABC, abstractmethod
 import json
 
 
-class BaseScraper:
+class BaseScraper(ABC):
     def __init__(
         self,
         root: str,
@@ -24,13 +24,48 @@ class BaseScraper:
         self.visited = []
         self.items = []
 
-    @abstractmethod
     def start(self) -> None:
-        raise NotImplementedError("start method must be overidden by child class")
+        with sync_api as p:
+            browser = p.chromium.launch(headless=True)
+            context = browser.new_context()
+            self.page = context.new_page()
+            self.page.goto(self.root, wait_until="load")
+            self.cookies()
+            self.page.wait_for_load_state("networkidle")
+            self.process_queue()
+            self.save()
 
     @abstractmethod
     def cookies(self) -> None:
-        raise NotImplementedError("cookies method must be overidden by child class")
+        return
+
+    def process_queue(self) -> None:
+        self.queue.put(self.root)
+        while not self.queue.empty() or self.depth < self.max_depth:
+            next_page = self.queue.get()
+            if next_page in self.visited:
+                continue
+            if next_page != self.root:
+                next_page = self.root + next_page
+
+            self.page.goto(next_page)
+            self.visited.append(next_page)
+
+            elements = self.get_elements()
+            hrefs = self.get_hrefs()
+            self.items += elements
+            for href in hrefs:
+                self.queue.put(self.root + href)
+            self.depth += 1
+
+    def get_elements(self) -> list[str]:
+        elements = []
+        for locator_string in self.locator_strings:
+            elements += self.page.locator(locator_string).all()
+        return elements
+
+    def get_hrefs(self) -> list[str]:
+        return [a.get_attribute("href") for a in self.page.locator("a").all()]
 
     def save(self) -> None:
         with open(self.save_path, "w") as f:
