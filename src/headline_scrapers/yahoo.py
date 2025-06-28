@@ -19,24 +19,6 @@ class YahooScraper(BaseScraper):
         self.page.locator("button", has_text="reject").click()
 
 
-def test_playwright():
-    with sync_playwright() as p:
-        p.selectors.set_test_id_attribute("data-test-locator")
-        browser = p.chromium.launch(headless=True)
-        context = browser.new_context()
-        page = context.new_page()
-        page.goto("https://news.yahoo.com/")
-        page.locator("button", has_text="reject").click()
-        page.wait_for_selector("a.stream-title")
-        stream_item_titles = page.locator(
-            '[data-test-locator="stream-item-title"]'
-        ).all()
-        item_titles = page.locator('[data-test-locator="item-title"]').all()
-        headlines = page.locator('[data-test-locator="headline"]').all()
-        hrefs = [element.get_attribute("href") for element in page.locator("a").all()]
-        print(hrefs)
-
-
 if __name__ == "__main__":
     yahoo_scraper = YahooScraper(
         "https://news.yahoo.com/",
