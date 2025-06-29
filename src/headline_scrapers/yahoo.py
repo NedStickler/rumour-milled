@@ -1,5 +1,4 @@
 from os import PathLike
-from playwright.sync_api import sync_playwright
 from headline_scrapers.base import BaseScraper
 
 
@@ -17,17 +16,3 @@ class YahooScraper(BaseScraper):
     def deal_with_cookies(self) -> None:
         self.page.goto(self.root, wait_until="load")
         self.page.locator("button", has_text="reject").click()
-
-
-if __name__ == "__main__":
-    yahoo_scraper = YahooScraper(
-        "https://news.yahoo.com/",
-        [
-            '[data-test-locator="headline"]',
-            '[data-test-locator="item-title"]',
-            '[data-test-locator="stream-item-title"]',
-        ],
-        max_pages=50,
-        save_path="data/raw/scraped_yahoo_headlines.json",
-    )
-    yahoo_scraper.start()

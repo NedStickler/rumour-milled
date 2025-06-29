@@ -1,9 +1,8 @@
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, TimeoutError
 from queue import SimpleQueue
 from os import PathLike
-from abc import ABC, abstractmethod
+from abc import ABC
 from validators.url import url
-from validators.utils import ValidationError
 import json
 
 
@@ -47,6 +46,8 @@ class BaseScraper(ABC):
 
             if next_page in self.visited:
                 continue
+            if len(next_page) == 0:
+                continue
             if next_page[0] == "/":
                 next_page = self.root + next_page
             if url(next_page) is not True:
@@ -72,8 +73,15 @@ class BaseScraper(ABC):
         return elements
 
     def get_hrefs(self) -> list[str]:
-        return [a.get_attribute("href") for a in self.page.locator("a").all()]
+        hrefs = []
+        for a in self.page.locator("a").all():
+            try:
+                hrefs.append(a.get_attribute("href"))
+            except TimeoutError:
+                continue
+        return hrefs
 
     def save(self) -> None:
+        print(len(self.items))
         with open(self.save_path, "w") as f:
             json.dump(self.items, f)
