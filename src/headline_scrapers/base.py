@@ -1,12 +1,11 @@
 from playwright.sync_api import sync_playwright, TimeoutError
 from queue import SimpleQueue
 from os import PathLike
-from abc import ABC
 from validators.url import url
 import json
 
 
-class BaseScraper(ABC):
+class BaseScraper:
     def __init__(
         self,
         root: str,
@@ -14,16 +13,18 @@ class BaseScraper(ABC):
         ignore_robots_txt: bool = False,
         max_pages: int = 3,
         save_path: PathLike = ".",
+        save_checkpont: int = None,
     ) -> None:
         self.root = root
         self.locator_strings = locator_strings
         self.ignore_robots_txt = ignore_robots_txt
         self.max_pages = max_pages
         self.save_path = save_path
-        self.depth = 0
+        self.page_number = 0
         self.queue = SimpleQueue()
         self.visited = []
         self.items = []
+        self.save_checkpoint = save_checkpont
 
     def start(self) -> None:
         with sync_playwright() as p:
@@ -32,7 +33,6 @@ class BaseScraper(ABC):
             self.page = context.new_page()
             self.page.goto(self.root, wait_until="load")
             self.deal_with_cookies()
-            # self.page.wait_for_load_state("networkidle")
             self.process_queue()
             self.save()
 
@@ -41,7 +41,7 @@ class BaseScraper(ABC):
 
     def process_queue(self) -> None:
         self.queue.put(self.root)
-        while not self.queue.empty() and self.depth < self.max_pages:
+        while not self.queue.empty() and self.page_number < self.max_pages:
             next_page = self.queue.get()
 
             if next_page in self.visited:
@@ -53,9 +53,8 @@ class BaseScraper(ABC):
             if url(next_page) is not True:
                 continue
 
-            print(f"Scraping {next_page}")
-            self.page.goto(next_page)
-            # self.page.wait_for_load_state("networkidle")
+            print(f"({self.page_number}) Scraping {next_page}")
+            self.page.goto(next_page, wait_until="load")
             self.visited.append(next_page)
 
             elements = self.get_elements()
@@ -64,7 +63,13 @@ class BaseScraper(ABC):
                 self.items.append(element.inner_text())
             for href in hrefs:
                 self.queue.put(href)
-            self.depth += 1
+
+            if (
+                not self.save_checkpoint is None
+                and self.page_number % self.save_checkpoint == 0
+            ):
+                self.save()
+            self.page_number += 1
 
     def get_elements(self) -> list[str]:
         elements = []
@@ -78,10 +83,9 @@ class BaseScraper(ABC):
             try:
                 hrefs.append(a.get_attribute("href"))
             except TimeoutError:
-                continue
+                print("Timed out getting href from element")
         return hrefs
 
     def save(self) -> None:
-        print(len(self.items))
         with open(self.save_path, "w") as f:
             json.dump(self.items, f)

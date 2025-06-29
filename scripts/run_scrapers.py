@@ -10,7 +10,8 @@ if __name__ == "__main__":
             '[data-test-locator="stream-item-title"]',
             '[class*="headline"]',
         ],
-        max_pages=100,
+        max_pages=10,
         save_path="data/raw/scraped_yahoo_headlines.json",
+        save_checkpoint=5,
     )
     yahoo_scraper.start()
