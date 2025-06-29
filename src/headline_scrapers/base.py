@@ -25,6 +25,7 @@ class BaseScraper:
         self.visited = []
         self.items = []
         self.save_checkpoint = save_checkpont
+        self.failures = []
 
     def start(self) -> None:
         with sync_playwright() as p:
@@ -42,34 +43,38 @@ class BaseScraper:
     def process_queue(self) -> None:
         self.queue.put(self.root)
         while not self.queue.empty() and self.page_number < self.max_pages:
-            next_page = self.queue.get()
+            try:
+                next_page = self.queue.get()
 
-            if next_page in self.visited:
-                continue
-            if len(next_page) == 0:
-                continue
-            if next_page[0] == "/":
-                next_page = self.root + next_page
-            if url(next_page) is not True:
-                continue
+                if next_page in self.visited:
+                    continue
+                if len(next_page) == 0:
+                    continue
+                if next_page[0] == "/":
+                    next_page = self.root + next_page
+                if url(next_page) is not True:
+                    continue
 
-            print(f"({self.page_number}) Scraping {next_page}")
-            self.page.goto(next_page, wait_until="load")
-            self.visited.append(next_page)
+                print(f"({self.page_number}) Scraping {next_page}")
+                self.page.goto(next_page, wait_until="load")
+                self.visited.append(next_page)
 
-            elements = self.get_elements()
-            hrefs = self.get_hrefs()
-            for element in elements:
-                self.items.append(element.inner_text())
-            for href in hrefs:
-                self.queue.put(href)
+                elements = self.get_elements()
+                hrefs = self.get_hrefs()
+                for element in elements:
+                    self.items.append(element.inner_text())
+                for href in hrefs:
+                    self.queue.put(href)
 
-            if (
-                not self.save_checkpoint is None
-                and self.page_number % self.save_checkpoint == 0
-            ):
-                self.save()
-            self.page_number += 1
+                if (
+                    not self.save_checkpoint is None
+                    and self.page_number % self.save_checkpoint == 0
+                ):
+                    self.save()
+                self.page_number += 1
+            except Exception as e:
+                print(f"Failure at {self.next_page}")
+                self.failures.append((self.next_page, e))
 
     def get_elements(self) -> list[str]:
         elements = []
