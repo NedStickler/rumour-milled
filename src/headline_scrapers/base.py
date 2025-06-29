@@ -20,7 +20,7 @@ class BaseScraper:
         self.ignore_robots_txt = ignore_robots_txt
         self.max_pages = max_pages
         self.save_path = save_path
-        self.page_number = 0
+        self.page_number = 1
         self.queue = SimpleQueue()
         self.visited = []
         self.items = []
@@ -42,7 +42,7 @@ class BaseScraper:
 
     def process_queue(self) -> None:
         self.queue.put(self.root)
-        while not self.queue.empty() and self.page_number < self.max_pages:
+        while not self.queue.empty() and self.page_number < self.max_pages + 1:
             try:
                 next_page = self.queue.get()
 
@@ -66,8 +66,9 @@ class BaseScraper:
                 for href in hrefs:
                     self.queue.put(href)
 
-                if (
-                    not self.save_checkpoint is None
+                if self.save_checkpoint == 1 or (
+                    self.save_checkpoint is not None
+                    and self.page_number != 0
                     and self.page_number % self.save_checkpoint == 0
                 ):
                     self.save()
@@ -92,5 +93,6 @@ class BaseScraper:
         return hrefs
 
     def save(self) -> None:
+        print("Saving current items")
         with open(self.save_path, "w") as f:
             json.dump(self.items, f)
