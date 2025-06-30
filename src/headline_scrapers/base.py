@@ -14,6 +14,7 @@ class BaseScraper:
         max_pages: int = 3,
         save_path: PathLike = ".",
         save_checkpont: int = None,
+        headless: bool = True,
     ) -> None:
         self.root = root
         self.locator_strings = locator_strings
@@ -25,11 +26,12 @@ class BaseScraper:
         self.visited = []
         self.items = []
         self.save_checkpoint = save_checkpont
+        self.headless = headless
         self.failures = []
 
     def start(self) -> None:
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
+            browser = p.chromium.launch(headless=self.headless)
             context = browser.new_context()
             self.page = context.new_page()
             self.page.goto(self.root, wait_until="load")
@@ -45,14 +47,13 @@ class BaseScraper:
         while not self.queue.empty() and self.page_number < self.max_pages + 1:
             try:
                 next_page = self.queue.get()
-
-                if next_page in self.visited:
-                    continue
                 if len(next_page) == 0:
                     continue
                 if next_page[0] == "/":
                     next_page = self.root + next_page
                 if url(next_page) is not True:
+                    continue
+                if next_page in self.visited:
                     continue
 
                 print(f"({self.page_number}) Scraping {next_page}")
@@ -85,11 +86,15 @@ class BaseScraper:
 
     def get_hrefs(self) -> list[str]:
         hrefs = []
+        fail_count = 0
         for a in self.page.locator("a").all():
+            if fail_count == 5:
+                break
             try:
                 hrefs.append(a.get_attribute("href"))
             except TimeoutError:
                 print("Timed out getting href from element")
+                fail_count += 1
         return hrefs
 
     def save(self) -> None:
