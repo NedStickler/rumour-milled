@@ -5,6 +5,10 @@ from validators.url import url
 import json
 
 
+# TODO:
+# - Point of diminishing returns?
+
+
 class BaseScraper:
     def __init__(
         self,
@@ -75,8 +79,8 @@ class BaseScraper:
                     self.save()
                 self.page_number += 1
             except Exception as e:
-                print(f"Failure at {self.next_page}")
-                self.failures.append((self.next_page, e))
+                print(f"Failure at {next_page}")
+                self.failures.append((next_page, e))
 
     def get_elements(self) -> list[str]:
         elements = []

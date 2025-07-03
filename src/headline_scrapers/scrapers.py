@@ -10,7 +10,7 @@ class YahooScraper(BaseScraper):
         ignore_robots_txt: bool = False,
         max_pages: int = 500,
         save_path: PathLike = ".",
-        save_checkpoint: int | None = None,
+        save_checkpoint: int | None = 10,
         headless: bool = True,
     ) -> None:
         super().__init__(
@@ -171,3 +171,75 @@ class IrishTimesScraper(BaseScraper):
         self.page.wait_for_load_state()
         self.page.get_by_role("button", name="reject").click()
         self.page.wait_for_load_state()
+
+
+class BusinessTechScraper(BaseScraper):
+    def __init__(
+        self,
+        locator_strings: list[str],
+        ignore_robots_txt: bool = False,
+        max_pages: int = 500,
+        save_path: PathLike = ".",
+        save_checkpoint: int | None = 10,
+        headless: bool = True,
+    ) -> None:
+        super().__init__(
+            "https://businesstech.co.za",
+            locator_strings,
+            ignore_robots_txt,
+            max_pages,
+            save_path,
+            save_checkpoint,
+            headless,
+        )
+
+
+class RNZScraper(BaseScraper):
+    def __init__(
+        self,
+        locator_strings: list[str],
+        ignore_robots_txt: bool = False,
+        max_pages: int = 500,
+        save_path: PathLike = ".",
+        save_checkpoint: int | None = 10,
+        headless: bool = True,
+    ) -> None:
+        super().__init__(
+            "https://www.rnz.co.nz",
+            locator_strings,
+            ignore_robots_txt,
+            max_pages,
+            save_path,
+            save_checkpoint,
+            headless,
+        )
+
+
+class HeraldScraper(BaseScraper):
+    def __init__(
+        self,
+        locator_strings: list[str],
+        ignore_robots_txt: bool = False,
+        max_pages: int = 500,
+        save_path: PathLike = ".",
+        save_checkpoint: int | None = 10,
+        headless: bool = True,
+    ) -> None:
+        super().__init__(
+            "https://www.heraldscotland.com",
+            locator_strings,
+            ignore_robots_txt,
+            max_pages,
+            save_path,
+            save_checkpoint,
+            headless,
+        )
+
+    # def deal_with_cookies(self):
+    #     try:
+    #         self.page.get_by_role("button", name="Reject All").click()
+    #         self.page.wait_for_load_state()
+    #         self.page.get_by_role("button", name="READ FOR FREE").click()
+    #         self.page.wait_for_load_state()
+    #     except TimeoutError:
+    #         print("Failed to find cookies management")
