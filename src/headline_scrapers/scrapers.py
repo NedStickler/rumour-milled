@@ -7,6 +7,7 @@ class YahooScraper(BaseScraper):
     def __init__(
         self,
         locator_strings: list[str],
+        robots_txt_url: str | None = None,
         ignore_robots_txt: bool = False,
         max_pages: int = 500,
         save_path: PathLike = ".",
@@ -16,6 +17,7 @@ class YahooScraper(BaseScraper):
         super().__init__(
             "https://news.yahoo.com",
             locator_strings,
+            robots_txt_url,
             ignore_robots_txt,
             max_pages,
             save_path,
@@ -32,6 +34,7 @@ class SkyScraper(BaseScraper):
     def __init__(
         self,
         locator_strings: list[str],
+        robots_txt_url: str | None = None,
         ignore_robots_txt: bool = False,
         max_pages: int = 500,
         save_path: PathLike = ".",
@@ -41,6 +44,7 @@ class SkyScraper(BaseScraper):
         super().__init__(
             "https://news.sky.com",
             locator_strings,
+            robots_txt_url,
             ignore_robots_txt,
             max_pages,
             save_path,
@@ -53,6 +57,7 @@ class CBCScraper(BaseScraper):
     def __init__(
         self,
         locator_strings: list[str],
+        robots_txt_url: str | None = None,
         ignore_robots_txt: bool = False,
         max_pages: int = 500,
         save_path: PathLike = ".",
@@ -62,6 +67,7 @@ class CBCScraper(BaseScraper):
         super().__init__(
             "https://www.cbc.ca",
             locator_strings,
+            robots_txt_url,
             ignore_robots_txt,
             max_pages,
             save_path,
@@ -83,6 +89,7 @@ class ABCScraper(BaseScraper):
     def __init__(
         self,
         locator_strings: list[str],
+        robots_txt_url: str | None = None,
         ignore_robots_txt: bool = False,
         max_pages: int = 500,
         save_path: PathLike = ".",
@@ -92,6 +99,7 @@ class ABCScraper(BaseScraper):
         super().__init__(
             "https://www.abc.net.au",
             locator_strings,
+            robots_txt_url,
             ignore_robots_txt,
             max_pages,
             save_path,
@@ -104,6 +112,7 @@ class FoxScraper(BaseScraper):
     def __init__(
         self,
         locator_strings: list[str],
+        robots_txt_url: str | None = None,
         ignore_robots_txt: bool = False,
         max_pages: int = 500,
         save_path: PathLike = ".",
@@ -113,6 +122,7 @@ class FoxScraper(BaseScraper):
         super().__init__(
             "https://www.foxnews.com",
             locator_strings,
+            robots_txt_url,
             ignore_robots_txt,
             max_pages,
             save_path,
@@ -125,6 +135,7 @@ class NBCScraper(BaseScraper):
     def __init__(
         self,
         locator_strings: list[str],
+        robots_txt_url: str | None = None,
         ignore_robots_txt: bool = False,
         max_pages: int = 500,
         save_path: PathLike = ".",
@@ -134,6 +145,7 @@ class NBCScraper(BaseScraper):
         super().__init__(
             "https://www.nbcnews.com",
             locator_strings,
+            robots_txt_url,
             ignore_robots_txt,
             max_pages,
             save_path,
@@ -150,6 +162,7 @@ class IrishTimesScraper(BaseScraper):
     def __init__(
         self,
         locator_strings: list[str],
+        robots_txt_url: str | None = None,
         ignore_robots_txt: bool = False,
         max_pages: int = 500,
         save_path: PathLike = ".",
@@ -159,6 +172,7 @@ class IrishTimesScraper(BaseScraper):
         super().__init__(
             "https://www.irishtimes.com",
             locator_strings,
+            robots_txt_url,
             ignore_robots_txt,
             max_pages,
             save_path,
@@ -177,6 +191,7 @@ class BusinessTechScraper(BaseScraper):
     def __init__(
         self,
         locator_strings: list[str],
+        robots_txt_url: str | None = None,
         ignore_robots_txt: bool = False,
         max_pages: int = 500,
         save_path: PathLike = ".",
@@ -186,6 +201,7 @@ class BusinessTechScraper(BaseScraper):
         super().__init__(
             "https://businesstech.co.za",
             locator_strings,
+            robots_txt_url,
             ignore_robots_txt,
             max_pages,
             save_path,
@@ -198,6 +214,7 @@ class RNZScraper(BaseScraper):
     def __init__(
         self,
         locator_strings: list[str],
+        robots_txt_url: str | None = None,
         ignore_robots_txt: bool = False,
         max_pages: int = 500,
         save_path: PathLike = ".",
@@ -207,6 +224,7 @@ class RNZScraper(BaseScraper):
         super().__init__(
             "https://www.rnz.co.nz",
             locator_strings,
+            robots_txt_url,
             ignore_robots_txt,
             max_pages,
             save_path,
@@ -219,6 +237,7 @@ class HeraldScraper(BaseScraper):
     def __init__(
         self,
         locator_strings: list[str],
+        robots_txt_url: str | None = None,
         ignore_robots_txt: bool = False,
         max_pages: int = 500,
         save_path: PathLike = ".",
@@ -228,6 +247,7 @@ class HeraldScraper(BaseScraper):
         super().__init__(
             "https://www.heraldscotland.com",
             locator_strings,
+            robots_txt_url,
             ignore_robots_txt,
             max_pages,
             save_path,

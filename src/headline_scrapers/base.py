@@ -9,6 +9,8 @@ from urllib.robotparser import RobotFileParser
 
 # TODO:
 # - Point of diminishing return?
+# - Fix gross ignore robots.txt logic
+# - DOCUMENT!
 
 
 class BaseScraper:
@@ -35,7 +37,8 @@ class BaseScraper:
         self.save_checkpoint = save_checkpont
         self.headless = headless
         self.failures = []
-        self.robots_parser = self.setup_robots_parser(robots_txt_url)
+        if not ignore_robots_txt:
+            self.robots_parser = self.setup_robots_parser(robots_txt_url)
 
     def start(self) -> None:
         with sync_playwright() as p:
@@ -54,9 +57,13 @@ class BaseScraper:
         user_code = self.__get_status_code(robots_url)
         root_code = self.__get_status_code(self.root + "/robots.txt")
         if user_code < 400:
-            return RobotFileParser(robots_url)
+            rp = RobotFileParser(robots_url)
+            rp.read()
+            return rp
         if root_code < 400:
-            return RobotFileParser(self.root + "/robots.txt")
+            rp = RobotFileParser(self.root + "/robots.txt")
+            rp.read()
+            return rp
         raise ValueError(
             "Cannot find valid robots.txt file using robot_url or root url. Supply valid url pointing to robots.txt or set ignore_robots_txt=False"
         )
@@ -80,7 +87,9 @@ class BaseScraper:
                     continue
                 if next_page in self.visited:
                     continue
-                if not self.robots_parser.can_fetch("*", next_page):
+                if not self.ignore_robots_txt and not self.robots_parser.can_fetch(
+                    "*", next_page
+                ):
                     print(f"Skipping {next_page} due to robots.txt disallow")
                     continue
 
