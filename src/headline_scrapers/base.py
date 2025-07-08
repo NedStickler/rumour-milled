@@ -10,7 +10,6 @@ from urllib.robotparser import RobotFileParser
 # TODO:
 # - Point of diminishing return?
 # - Fix gross ignore robots.txt logic
-# - DOCUMENT!
 
 
 class BaseScraper:
