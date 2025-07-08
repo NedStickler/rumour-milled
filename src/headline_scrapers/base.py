@@ -14,17 +14,59 @@ from urllib.robotparser import RobotFileParser
 
 
 class BaseScraper:
+    """Base class for web scrapers using Playwright.
+
+    Pprovides a framework for scraping web pages, handling navigation, queueing, robots.txt compliance, and saving scraped data.
+
+    Args:
+        root (str): The root URL to start scraping from.
+        locator_strings (list[str]): List of CSS/XPath selectors to locate elements to scrape.
+        robots_txt_url (str | None, optional): URL to a robots.txt file. If None, will try root + '/robots.txt'.
+        ignore_robots_txt (bool, optional): If True, robots.txt rules are ignored. Defaults to False.
+        max_pages (int, optional): Maximum number of pages to scrape. Defaults to 100.
+        save_path (PathLike, optional): Path to save scraped items. Defaults to current directory.
+        save_checkpoint (int, optional): Save after this many pages. If None, only saves at end. Defaults to None.
+        headless (bool, optional): Whether to run browser in headless mode. Defaults to True.
+
+    Attributes:
+        root (str): The root URL.
+        locator_strings (list[str]): List of selectors for scraping.
+        ignore_robots_txt (bool): Whether to ignore robots.txt.
+        max_pages (int): Max pages to scrape.
+        save_path (PathLike): Path to save data.
+        page_number (int): Current page number.
+        queue (SimpleQueue): Queue of URLs to visit.
+        visited (list): List of visited URLs.
+        items (list): List of scraped items.
+        save_checkpoint (int | None): Save checkpoint interval.
+        headless (bool): Headless browser flag.
+        failures (list): List of (url, exception) tuples for failed pages.
+        robots_parser (RobotFileParser): Parser for robots.txt (if not ignored).
+    """
+
     def __init__(
         self,
         root: str,
         locator_strings: list[str],
         robots_txt_url: str | None = None,
         ignore_robots_txt: bool = False,
-        max_pages: int = 3,
+        max_pages: int = 100,
         save_path: PathLike = ".",
-        save_checkpont: int = None,
+        save_checkpoint: int = None,
         headless: bool = True,
     ) -> None:
+        """Initialize the BaseScraper instance.
+
+        Args:
+            root (str): The root URL to start scraping from.
+            locator_strings (list[str]): List of CSS/XPath selectors to locate elements to scrape.
+            robots_txt_url (str | None, optional): URL to a robots.txt file. If None, will try root + '/robots.txt'.
+            ignore_robots_txt (bool, optional): If True, robots.txt rules are ignored. Defaults to False.
+            max_pages (int, optional): Maximum number of pages to scrape. Defaults to 100.
+            save_path (PathLike, optional): Path to save scraped items. Defaults to current directory.
+            save_checkpoint (int, optional): Save after this many pages. If None, only saves at end. Defaults to None.
+            headless (bool, optional): Whether to run browser in headless mode. Defaults to True.
+        """
         self.root = root
         self.locator_strings = locator_strings
         self.ignore_robots_txt = ignore_robots_txt
@@ -34,13 +76,17 @@ class BaseScraper:
         self.queue = SimpleQueue()
         self.visited = []
         self.items = []
-        self.save_checkpoint = save_checkpont
+        self.save_checkpoint = save_checkpoint
         self.headless = headless
         self.failures = []
         if not ignore_robots_txt:
             self.robots_parser = self.setup_robots_parser(robots_txt_url)
 
     def start(self) -> None:
+        """Start the scraping process.
+
+        Launches a Playwright browser, navigates to the root URL, handles cookies, processes the scraping queue, and saves the results.
+        """
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=self.headless)
             context = browser.new_context()
@@ -51,9 +97,24 @@ class BaseScraper:
             self.save()
 
     def deal_with_cookies(self) -> None:
+        """Handle cookie consent dialogs or banners if needed.
+
+        Override this method in subclasses to implement custom cookie handling logic.
+        """
         return
 
     def setup_robots_parser(self, robots_url: str | None) -> bool:
+        """Set up the robots.txt parser for the scraper.
+
+        Tries to use the provided robots.txt URL, or falls back to root + '/robots.txt'.
+        Raises ValueError if no valid robots.txt is found.
+
+        Args:
+            robots_url (str | None): URL to robots.txt file.
+
+        Returns:
+            RobotFileParser: Configured robots.txt parser.
+        """
         user_code = self.__get_status_code(robots_url)
         root_code = self.__get_status_code(self.root + "/robots.txt")
         if user_code < 400:
@@ -69,12 +130,24 @@ class BaseScraper:
         )
 
     def __get_status_code(self, url):
+        """Get the HTTP status code for a given URL.
+
+        Args:
+            url (str): The URL to check.
+
+        Returns:
+            int: HTTP status code, or 400 if request fails.
+        """
         try:
             return requests.get(url).status_code
         except requests.exceptions.RequestException:
             return 400
 
     def process_queue(self) -> None:
+        """Process the queue of URLs to scrape.
+
+        Visits each URL in the queue, scrapes elements and links, respects robots.txt, and saves data at checkpoints.
+        """
         self.queue.put(self.root)
         while not self.queue.empty() and self.page_number < self.max_pages + 1:
             try:
@@ -116,12 +189,22 @@ class BaseScraper:
                 self.failures.append((next_page, e))
 
     def get_elements(self) -> list[str]:
+        """Get elements matching the locator strings on the current page.
+
+        Returns:
+            list[str]: List of Playwright element handles matching the locator strings.
+        """
         elements = []
         for locator_string in self.locator_strings:
             elements += self.page.locator(locator_string).all()
         return elements
 
     def get_hrefs(self) -> list[str]:
+        """Get href attributes from all anchor tags on the current page.
+
+        Returns:
+            list[str]: List of href URLs found on the page.
+        """
         hrefs = []
         fail_count = 0
         for a in self.page.locator("a").all():
@@ -135,6 +218,7 @@ class BaseScraper:
         return hrefs
 
     def save(self) -> None:
+        """Save the scraped items to the specified save_path as JSON."""
         print("Saving current items")
         with open(self.save_path, "w") as f:
             json.dump(self.items, f)
