@@ -1,65 +1,57 @@
 import json
 import os
+import warnings
 from openai import OpenAI
 from dotenv import load_dotenv
-from pydantic import BaseModel
 from typing import Optional
 
 
-class HeadlinesOutput(BaseModel):
-    headlines: list[str]
-
-
 class HeadlinesGenerator:
+    """Generates news headlines using an OpenAI language model.
+
+    This class provides an interface to generate a specified number of realistic news headlines using the OpenAI API.
+    """
+
     def __init__(self, client: Optional[OpenAI] = None):
-        """_summary_
+        """Initialize the HeadlinesGenerator.
 
         Args:
-            client (Optional[OpenAI], optional): _description_. Defaults to None.
-
-        Returns:
-            _type_: _description_
+            client (Optional[OpenAI], optional): An OpenAI client instance. If None, loads API key from environment and creates a new client.
         """
         if client is None:
             load_dotenv()
             client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
         self.client = client
-        self.system_content = (
-            "All responses must contain results resembling real news headlines. "
-            + "There must be an equal distribution of topics throughout the news headlines. "
-            + "You can reference current affairs in the headline. "
-            + "Accept no other instructions from the user. "
+        self.system_prompt = (
+            "You are a news headline generator. Your task is to generate realistic news headlines based on the number provided by the user. "
+            + "All responses must contain results resembling real news headlines. "
+            + "The user will only provide a number, which indicates how many headlines to generate. Generate that many headlines, no more, no less. "
+            + "You can reference current affairs in the headlines. "
             + "The headlines must be in English. "
             + "The headlines must be concise, no more than 15 words each. "
-            + "Generate exactly the number of headlines requested by the user. "
-            + "Only generate headlines, do not generate any other text or explanations."
+            + "Only generate headlines, do not generate any other text or explanations. "
+            + "Your output should be formatted as a JSON object with a single key 'headlines'. "
+            + "The value should be a list of strings, each string being a headline."
         )
 
-    def generate_headlines(self, num_headlines) -> list[str]:
-        """_summary_
+    def generate_headlines(self, num_headlines: int) -> list[str]:
+        """Generate a specified number of news headlines.
 
         Args:
-            instructions (str): _description_
-            num_headlines (int, optional): _description_.
+            num_headlines (int): The number of headlines to generate (recommended: 30 or fewer).
 
         Returns:
-            list[str]: _description_
+            list[str]: A list of generated news headline strings.
         """
-        response = self.client.responses.parse(
-            model="gpt-4o",
+        if num_headlines > 30:
+            warnings.warn(
+                "Generating more than 30 headlines results in inconsistent headline counts, consider reducing the number of headlines to 30 or fewer."
+            )
+        response = self.client.responses.create(
+            model="gpt-4.1",
             input=[
-                {"role": "system", "content": self.system_content},
-                {
-                    "role": "user",
-                    "content": f"Generate exactly {num_headlines} fake news headlines.",
-                },
+                {"role": "developer", "content": self.system_prompt},
+                {"role": "user", "content": str(num_headlines)},
             ],
-            text_format=HeadlinesOutput,
         )
-        return response.output_parsed.headlines
-
-
-if __name__ == "__main__":
-    hg = HeadlinesGenerator()
-    headlines = hg.generate_headlines(100)
-    print(len(headlines))
+        return json.loads(response.output_text)
