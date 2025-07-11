@@ -14,7 +14,7 @@ class TestScraper(BaseScraper):
         headless: bool = True,
     ) -> None:
         super().__init__(
-            "https://news.yahoo.com/caas/",
+            "https://news.yahoo.com",
             locator_strings,
             robots_txt_url,
             ignore_robots_txt,
@@ -24,9 +24,9 @@ class TestScraper(BaseScraper):
             headless,
         )
 
-    def deal_with_cookies(self) -> None:
-        self.page.locator("button", has_text="reject").click()
-        self.page.wait_for_load_state()
+    async def deal_with_cookies(self, page) -> None:
+        await page.locator("button", has_text="reject").click()
+        await page.wait_for_load_state()
 
 
 if __name__ == "__main__":
@@ -37,9 +37,9 @@ if __name__ == "__main__":
             '[data-test-locator="stream-item-title"]',
             '[class*="headline"]',
         ],
-        max_pages=10,
+        max_pages=100,
         robots_txt_url="https://news.yahoo.com/robots.txt",
         ignore_robots_txt=False,
         save_path="data/raw/scraped_yahoo_headlines.json",
     )
-    yahoo_scraper.start()
+    yahoo_scraper.run()
