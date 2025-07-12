@@ -83,7 +83,7 @@ class BaseScraper:
 
     def __get_status_code(self, url):
         try:
-            res = requests.get(url)
+            res = requests.get(url, headers=requests.utils.default_headers(), timeout=5)
             return res.status_code
         except Exception:
             return 400
