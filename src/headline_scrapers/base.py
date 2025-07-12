@@ -1,8 +1,8 @@
 import json
 import asyncio
-import requests
 from playwright.async_api import async_playwright, TimeoutError
 from os import PathLike
+from pathlib import Path
 from validators.url import url as validate_url
 from headline_scrapers.parsers import RobotsTxtParser
 from typing import Optional
@@ -15,7 +15,7 @@ class BaseScraper:
         locator_strings: list[str],
         robots_txt_url: Optional[str] = None,
         ignore_robots_txt: bool = False,
-        max_pages: int = 20,
+        max_pages: int = 1000,
         max_workers: int = 20,
         save_path: PathLike = "scraped_data.json",
         save_checkpoint: Optional[str] = None,
@@ -29,6 +29,7 @@ class BaseScraper:
         self.save_path = save_path
         self.page_number = 1
         self.page_number_lock = asyncio.Lock()
+        self.write_lock = asyncio.Lock()
         self.queue = asyncio.Queue()
         self.visited = set()
         self.items = []
@@ -59,7 +60,7 @@ class BaseScraper:
                     tg.create_task(self.process_queue())
             await self.context.close()
             await browser.close()
-            self.save()
+            await self.save()
 
     async def deal_with_cookies(self, page) -> None:
         return
@@ -73,30 +74,6 @@ class BaseScraper:
         else:
             rp.read()
         return rp
-
-    def can_visit(self, url: str) -> bool:
-        if not url:
-            return False
-        valid_url = validate_url(url)
-        visited = url in self.visited
-        passed_robots = self.ignore_robots_txt or self.robots_parser.can_fetch("*", url)
-        return valid_url and not visited and passed_robots
-
-    async def _scrape_page(self, url: str, page) -> None:
-        print(f"Scraping {url}")
-        await page.goto(url, wait_until="load")
-        self.visited.add(url)
-        elements = await self.get_elements(page)
-        hrefs = await self.get_hrefs(page)
-        for element in elements:
-            self.items.append(await element.inner_text())
-        for href in hrefs:
-            await self.queue.put(href)
-
-    def normalise_url(self, url: str) -> str:
-        if url[0] == "/":
-            return self.root.rstrip("/") + url
-        return url
 
     async def process_queue(self) -> None:
         while True:
@@ -119,18 +96,44 @@ class BaseScraper:
             try:
                 page = await self.context.new_page()
                 await self._scrape_page(next_url, page)
-                await page.close()
             except Exception as e:
                 print(f"Failure at {next_url}: {str(e).splitlines()[0]}")
                 self.failures.append((next_url, e))
             finally:
+                await page.close()
                 self.queue.task_done()
 
             # Save checkpoint
             if self.save_checkpoint and current_page_number % self.save_checkpoint == 0:
-                self.save()
+                await self.save()
             await asyncio.sleep(0.5)
-            print(self.page_number)
+
+    async def _scrape_page(self, url: str, page) -> None:
+        print(f"Scraping {url}")
+        await page.goto(url, wait_until="load")
+        self.visited.add(url)
+        elements = await self.get_elements(page)
+        hrefs = await self.get_hrefs(page)
+        elements_text = []
+        for element in elements:
+            elements_text.append(await element.inner_text())
+        for href in hrefs:
+            await self.queue.put(href)
+        async with self.write_lock:
+            self.items.extend(elements_text)
+
+    def can_visit(self, url: str) -> bool:
+        if not url:
+            return False
+        valid_url = validate_url(url)
+        visited = url in self.visited
+        passed_robots = self.robots_parser.can_fetch("*", url)
+        return valid_url and not visited and passed_robots
+
+    def normalise_url(self, url: str) -> str:
+        if url[0] == "/":
+            return self.root.rstrip("/") + url
+        return url
 
     async def get_elements(self, page) -> list[str]:
         elements = []
@@ -147,7 +150,15 @@ class BaseScraper:
             print("Timed out getting href from element")
         return hrefs
 
-    def save(self) -> None:
-        print("Saving current items")
-        with open(self.save_path, "w") as f:
-            json.dump(self.items, f)
+    async def save(self) -> None:
+        async with self.write_lock:
+            print("Saving current items")
+            if not Path(self.save_path).exists():
+                with open(self.save_path, "w") as f:
+                    json.dump([], f)
+            with open(self.save_path, "r+") as f:
+                existing_data = json.load(f)
+                f.seek(0)
+                f.truncate()
+                json.dump(existing_data + self.items, f)
+            self.items.clear()

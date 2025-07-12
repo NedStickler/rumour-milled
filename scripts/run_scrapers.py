@@ -10,7 +10,7 @@ if __name__ == "__main__":
     folder_path = str(folder_path)
 
     yahoo_scraper = YahooScraper(
-        save_path=folder_path + "/scraped_yahoo_headlines.json"
+        save_path=folder_path + "/scraped_yahoo_headlines.json", save_checkpoint=10
     )
     sky_scraper = SkyScraper(save_path=folder_path + "/scraped_sky_headlines.json")
     cbc_scraper = CBCScraper(
@@ -32,16 +32,16 @@ if __name__ == "__main__":
 
     scrapers = [
         ("Yahoo", yahoo_scraper),
-        ("Sky", sky_scraper),
-        ("CBC", cbc_scraper),
-        ("ABC", abc_scraper),
-        ("Fox", fox_scraper),
-        ("NBC", nbc_scraper),
-        ("Irish Times", irish_times_scraper),
-        ("BusinessTech", businesstech_scraper),
-        ("RNZ", rnz_scraper),
-        ("Scotsman", herald_scraper),
+        # ("Sky", sky_scraper),
+        # ("CBC", cbc_scraper),
+        # ("ABC", abc_scraper),
+        # ("Fox", fox_scraper),
+        # ("NBC", nbc_scraper),
+        # ("Irish Times", irish_times_scraper),
+        # ("BusinessTech", businesstech_scraper),
+        # ("RNZ", rnz_scraper),
+        # ("Scotsman", herald_scraper),
     ]
 
-    for name, obj in scrapers:
-        obj.run()
+    for name, scraper in scrapers:
+        scraper.run()
