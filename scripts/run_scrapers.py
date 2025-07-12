@@ -1,9 +1,11 @@
 from headline_scrapers.scrapers import *
 from datetime import datetime
 from pathlib import Path
+import time
 
 
 if __name__ == "__main__":
+    start = time.perf_counter()
     datetime_now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     folder_path = Path(f"data/raw/headlines/scraped/{datetime_now}")
     folder_path.mkdir(parents=True, exist_ok=True)
@@ -32,16 +34,19 @@ if __name__ == "__main__":
 
     scrapers = [
         ("Yahoo", yahoo_scraper),
-        # ("Sky", sky_scraper),
-        # ("CBC", cbc_scraper),
-        # ("ABC", abc_scraper),
-        # ("Fox", fox_scraper),
-        # ("NBC", nbc_scraper),
-        # ("Irish Times", irish_times_scraper),
-        # ("BusinessTech", businesstech_scraper),
-        # ("RNZ", rnz_scraper),
-        # ("Scotsman", herald_scraper),
+        ("Sky", sky_scraper),
+        ("CBC", cbc_scraper),
+        ("ABC", abc_scraper),
+        ("Fox", fox_scraper),
+        ("NBC", nbc_scraper),
+        ("Irish Times", irish_times_scraper),
+        ("BusinessTech", businesstech_scraper),
+        ("RNZ", rnz_scraper),
+        ("Scotsman", herald_scraper),
     ]
 
     for name, scraper in scrapers:
         scraper.run()
+
+    end = time.perf_counter()
+    print(f"Scraping completed in {end - start:.6f} seconds.")
