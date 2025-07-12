@@ -95,7 +95,7 @@ class BaseScraper:
             # Scrape the page
             try:
                 page = await self.context.new_page()
-                await self._scrape_page(next_url, page)
+                await self.scrape_page(next_url, page)
             except Exception as e:
                 print(f"Failure at {next_url}: {str(e).splitlines()[0]}")
                 self.failures.append((next_url, e))
@@ -108,7 +108,7 @@ class BaseScraper:
                 await self.save()
             await asyncio.sleep(0.5)
 
-    async def _scrape_page(self, url: str, page) -> None:
+    async def scrape_page(self, url: str, page) -> None:
         print(f"Scraping {url}")
         await page.goto(url, wait_until="load")
         self.visited.add(url)
@@ -123,8 +123,6 @@ class BaseScraper:
             self.items.extend(elements_text)
 
     def can_visit(self, url: str) -> bool:
-        if not url:
-            return False
         valid_url = validate_url(url)
         visited = url in self.visited
         passed_robots = self.robots_parser.can_fetch("*", url)
