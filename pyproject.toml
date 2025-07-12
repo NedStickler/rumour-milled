@@ -7,7 +7,7 @@ authors = [
 ]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
     "pandas (>=2.3.0,<3.0.0)",
     "ipykernel (>=6.29.5,<7.0.0)",
