@@ -25,7 +25,7 @@ class YahooScraper(HeadlineScraper):
         )
 
     async def deal_with_cookies(self, page) -> None:
-        await page.locator("button", has_text="reject").click()
+        await page.get_by_role("button", name="reject").click()
         await page.wait_for_load_state()
 
 
@@ -47,17 +47,14 @@ class CBCScraper(HeadlineScraper):
         **kwargs: Optional[str],
     ) -> None:
         super().__init__(
-            root="https://www.cbc.ca", locator_strings=['[class*="headline"]'] ** kwargs
+            root="https://www.cbc.ca", locator_strings=['[class*="headline"]'], **kwargs
         )
 
     async def deal_with_cookies(self, page) -> None:
-        try:
-            await page.locator("button", has_text="manage").click()
-            await page.wait_for_load_state()
-            await page.get_by_role("button", name="Confirm choices").click()
-            await page.wait_for_load_state()
-        except TimeoutError:
-            print("Failed to find cookies management")
+        await page.get_by_role("button", name="manage").click()
+        await page.wait_for_load_state()
+        await page.get_by_role("button", name="Confirm choices").click()
+        await page.wait_for_load_state()
 
 
 class ABCScraper(HeadlineScraper):
@@ -67,7 +64,8 @@ class ABCScraper(HeadlineScraper):
     ) -> None:
         super().__init__(
             root="https://www.abc.net.au",
-            locator_strings=['[data-component*="CardHeading"]'] ** kwargs,
+            locator_strings=['[data-component*="CardHeading"]'],
+            **kwargs,
         )
 
 
