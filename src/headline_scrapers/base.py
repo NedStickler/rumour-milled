@@ -4,7 +4,7 @@ import requests
 from playwright.async_api import async_playwright, TimeoutError
 from os import PathLike
 from validators.url import url as validate_url
-from urllib.robotparser import RobotFileParser
+from headline_scrapers.parsers import RobotsTxtParser
 from typing import Optional
 
 
@@ -36,9 +36,7 @@ class BaseScraper:
         self.save_checkpoint = save_checkpoint
         self.headless = headless
         self.failures = []
-        if not self.ignore_robots_txt:
-            self.robots_parser = self.setup_robots_parser(self.robots_txt_url)
-        print(self.root, "DONE")
+        self.robots_parser = self.setup_robots_txt_parser(robots_txt_url)
 
     def run(self) -> None:
         asyncio.run(self.start())
@@ -65,21 +63,17 @@ class BaseScraper:
     async def deal_with_cookies(self, page) -> None:
         return
 
-    def setup_robots_parser(self, robots_url: Optional[str] = None) -> bool:
+    def setup_robots_txt_parser(self, robots_txt_url: Optional[str] = None) -> bool:
         # Fix this monstrosity
         # RobotParser is blocking, needs custom logic. Fine for now.
-        candidates = []
-        candidates.append(self.root.rstrip("/") + "/robots.txt")
-        if robots_url is not None:
-            candidates.append(robots_url)
-        for candidate in candidates:
-            if self.__get_status_code(candidate) < 400:
-                rp = RobotFileParser(candidate)
-                rp.read()
-                return rp
-        raise ValueError(
-            "Cannot find valid robots.txt file using robot_url or root url. Supply valid url pointing to robots.txt or set ignore_robots_txt=True"
-        )
+        if robots_url is None:
+            robots_url = self.root.rstrip("/") + "/robots.txt"
+        rp = RobotsTxtParser(robots_txt_url)
+        if self.ignore_robots_txt:
+            rp.allow_all = True
+        else:
+            rp.read()
+        return rp
 
     def __get_status_code(self, url):
         try:
