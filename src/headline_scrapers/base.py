@@ -16,14 +16,13 @@ class BaseScraper:
         robots_txt_url: Optional[str] = None,
         ignore_robots_txt: bool = False,
         max_pages: int = 20,
-        max_workers: int = 10,
+        max_workers: int = 20,
         save_path: PathLike = "scraped_data.json",
         save_checkpoint: Optional[str] = None,
         headless: bool = True,
     ) -> None:
         self.root = root
         self.locator_strings = locator_strings
-        self.robots_txt_url = robots_txt_url
         self.ignore_robots_txt = ignore_robots_txt
         self.max_pages = max_pages
         self.max_workers = max_workers
@@ -45,7 +44,9 @@ class BaseScraper:
         async with async_playwright() as p:
             # Setup
             browser = await p.chromium.launch(headless=self.headless)
-            self.context = await browser.new_context()
+            self.context = await browser.new_context(
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+            )
             page = await self.context.new_page()
             # Open root page and deal with cookies
             await page.goto(self.root, wait_until="load")
@@ -64,23 +65,14 @@ class BaseScraper:
         return
 
     def setup_robots_txt_parser(self, robots_txt_url: Optional[str] = None) -> bool:
-        # Fix this monstrosity
-        # RobotParser is blocking, needs custom logic. Fine for now.
-        if robots_url is None:
-            robots_url = self.root.rstrip("/") + "/robots.txt"
+        if robots_txt_url is None:
+            robots_txt_url = self.root.rstrip("/") + "/robots.txt"
         rp = RobotsTxtParser(robots_txt_url)
         if self.ignore_robots_txt:
             rp.allow_all = True
         else:
             rp.read()
         return rp
-
-    def __get_status_code(self, url):
-        try:
-            res = requests.get(url, headers=requests.utils.default_headers(), timeout=5)
-            return res.status_code
-        except Exception:
-            return 400
 
     def can_visit(self, url: str) -> bool:
         if not url:
@@ -112,6 +104,8 @@ class BaseScraper:
             async with self.page_number_lock:
                 if self.page_number > self.max_pages:
                     break
+                current_page_number = self.page_number
+                self.page_number += 1
             try:
                 next_url = await self.queue.get()
             except asyncio.CancelledError:
@@ -132,16 +126,11 @@ class BaseScraper:
             finally:
                 self.queue.task_done()
 
-            # Post-scrape admin
-            async with self.page_number_lock:
-                if (
-                    self.save_checkpoint
-                    and self.page_number % self.save_checkpoint == 0
-                ):
-                    self.save()
-                self.page_number += 1
-
+            # Save checkpoint
+            if self.save_checkpoint and current_page_number % self.save_checkpoint == 0:
+                self.save()
             await asyncio.sleep(0.5)
+            print(self.page_number)
 
     async def get_elements(self, page) -> list[str]:
         elements = []
