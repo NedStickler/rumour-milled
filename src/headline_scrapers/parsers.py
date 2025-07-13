@@ -10,7 +10,7 @@ class RobotsTxtParser(RobotFileParser):
         }
 
     def read(self) -> str:
-        res = requests.get(self.url, headers=self.headers)
+        res = requests.get(self.url, headers=self.headers, timeout=10)
         if res.status_code in (401, 403):
             self.disallow_all = True
         elif res.status_code >= 400 and res.status_code < 500:
