@@ -1,11 +1,13 @@
 import json
 import asyncio
+import logging
 from playwright.async_api import async_playwright, TimeoutError
 from os import PathLike
 from pathlib import Path
 from validators.url import url as validate_url
 from headline_scrapers.parsers import RobotsTxtParser
 from typing import Optional
+from time import perf_counter
 
 
 class BaseScraper:
@@ -15,12 +17,13 @@ class BaseScraper:
         locator_strings: list[str],
         robots_txt_url: Optional[str] = None,
         ignore_robots_txt: bool = False,
-        max_pages: int = 1000,
+        max_pages: int = 500,
         max_workers: int = 20,
         save_path: PathLike = "scraped_data.json",
-        save_checkpoint: Optional[str] = None,
+        save_checkpoint: Optional[int] = None,
         headless: bool = True,
     ) -> None:
+        self.start_time = perf_counter()
         self.root = root
         self.locator_strings = locator_strings
         self.ignore_robots_txt = ignore_robots_txt
@@ -32,14 +35,19 @@ class BaseScraper:
         self.write_lock = asyncio.Lock()
         self.queue = asyncio.Queue()
         self.visited = set()
+        self.visited_lock = asyncio.Lock()
         self.items = []
         self.save_checkpoint = save_checkpoint
         self.headless = headless
         self.failures = []
         self.robots_parser = self.setup_robots_txt_parser(robots_txt_url)
+        self.logger = self.setup_logger()
 
     def run(self) -> None:
         asyncio.run(self.start())
+        self.logger.info(
+            f"Scraping completed in {perf_counter() - self.start_time:.2f} seconds."
+        )
 
     async def start(self) -> None:
         async with async_playwright() as p:
@@ -67,13 +75,25 @@ class BaseScraper:
 
     def setup_robots_txt_parser(self, robots_txt_url: Optional[str] = None) -> bool:
         if robots_txt_url is None:
-            robots_txt_url = self.root.rstrip("/") + "/robots.txt"
+            robots_txt_url = f'{self.root.rstrip("/")}/robots.txt'
         rp = RobotsTxtParser(robots_txt_url)
         if self.ignore_robots_txt:
             rp.allow_all = True
         else:
             rp.read()
         return rp
+
+    def setup_logger(self) -> None:
+        save_folder = Path(self.save_path).parent
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            handlers=[
+                logging.StreamHandler(),
+                logging.FileHandler(f"{save_folder}/scrapers.log", mode="w"),
+            ],
+        )
+        return logging.getLogger(self.__class__.__name__)
 
     async def process_queue(self) -> None:
         while True:
@@ -88,7 +108,7 @@ class BaseScraper:
             except asyncio.CancelledError:
                 break
             next_url = self.normalise_url(next_url)
-            if not self.can_visit(next_url):
+            if not await self.can_visit(next_url):
                 self.queue.task_done()
                 continue
 
@@ -97,7 +117,7 @@ class BaseScraper:
                 page = await self.context.new_page()
                 await self.scrape_page(next_url, page)
             except Exception as e:
-                print(f"Failure at {next_url}: {str(e).splitlines()[0]}")
+                self.logger.error(f"Failure at {next_url}: {str(e).splitlines()[0]}")
                 self.failures.append((next_url, e))
             finally:
                 await page.close()
@@ -109,11 +129,14 @@ class BaseScraper:
             await asyncio.sleep(0.5)
 
     async def scrape_page(self, url: str, page) -> None:
-        print(f"Scraping {url}")
+        self.logger.info(f"Scraping {url}")
         await page.goto(url, wait_until="load")
-        self.visited.add(url)
+        async with self.visited_lock:
+            self.visited.add(url)
+
         elements = await self.get_elements(page)
         hrefs = await self.get_hrefs(page)
+
         elements_text = []
         for element in elements:
             elements_text.append(await element.inner_text())
@@ -122,9 +145,10 @@ class BaseScraper:
         async with self.write_lock:
             self.items.extend(elements_text)
 
-    def can_visit(self, url: str) -> bool:
+    async def can_visit(self, url: str) -> bool:
         valid_url = validate_url(url)
-        visited = url in self.visited
+        async with self.visited_lock:
+            visited = url in self.visited
         passed_robots = self.robots_parser.can_fetch("*", url)
         return valid_url and not visited and passed_robots
 
@@ -140,17 +164,14 @@ class BaseScraper:
         return elements
 
     async def get_hrefs(self, page) -> list[str]:
-        try:
-            hrefs = await page.eval_on_selector_all(
-                "a[href]", "elements => elements.map(e => e.href)"
-            )
-        except TimeoutError:
-            print("Timed out getting href from element")
+        hrefs = await page.eval_on_selector_all(
+            "a[href]", "elements => elements.map(e => e.href)"
+        )
         return hrefs
 
     async def save(self) -> None:
         async with self.write_lock:
-            print("Saving current items")
+            self.logger.info("Saving current items")
             if not Path(self.save_path).exists():
                 with open(self.save_path, "w") as f:
                     json.dump([], f)
