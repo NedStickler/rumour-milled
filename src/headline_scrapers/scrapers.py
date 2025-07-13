@@ -4,15 +4,8 @@ from playwright.sync_api import TimeoutError
 from typing import Optional
 
 
-class HeadlineScraper(BaseScraper):
-    def __init__(
-        self, root: str, locator_strings: list[str], **kwargs: Optional[str]
-    ) -> None:
-        super().__init__(root, locator_strings, **kwargs)
-
-
-class YahooScraper(HeadlineScraper):
-    def __init__(self, **kwargs: Optional[str]) -> None:
+class YahooScraper(BaseScraper):
+    def __init__(self, **kwargs) -> None:
         super().__init__(
             root="https://news.yahoo.com",
             locator_strings=[
@@ -29,10 +22,10 @@ class YahooScraper(HeadlineScraper):
         await page.wait_for_load_state()
 
 
-class SkyScraper(HeadlineScraper):
+class SkyScraper(BaseScraper):
     def __init__(
         self,
-        **kwargs: Optional[str],
+        **kwargs,
     ) -> None:
         super().__init__(
             root="https://news.sky.com",
@@ -41,10 +34,10 @@ class SkyScraper(HeadlineScraper):
         )
 
 
-class CBCScraper(HeadlineScraper):
+class CBCScraper(BaseScraper):
     def __init__(
         self,
-        **kwargs: Optional[str],
+        **kwargs,
     ) -> None:
         super().__init__(
             root="https://www.cbc.ca", locator_strings=['[class*="headline"]'], **kwargs
@@ -57,10 +50,10 @@ class CBCScraper(HeadlineScraper):
         await page.wait_for_load_state()
 
 
-class ABCScraper(HeadlineScraper):
+class ABCScraper(BaseScraper):
     def __init__(
         self,
-        **kwargs: Optional[str],
+        **kwargs,
     ) -> None:
         super().__init__(
             root="https://www.abc.net.au",
@@ -72,7 +65,9 @@ class ABCScraper(HeadlineScraper):
 class FoxScraper(BaseScraper):
     def __init__(self, **kwargs) -> None:
         super().__init__(
-            "https://www.foxnews.com", locator_strings=['[class*="title"]'], **kwargs
+            root="https://www.foxnews.com",
+            locator_strings=['[class*="title"]'],
+            **kwargs,
         )
 
 
@@ -92,7 +87,7 @@ class NBCScraper(BaseScraper):
 class IrishTimesScraper(BaseScraper):
     def __init__(self, **kwargs) -> None:
         super().__init__(
-            "https://www.irishtimes.com",
+            root="https://www.irishtimes.com",
             locator_strings=['[class*="heading"]'],
             **kwargs,
         )

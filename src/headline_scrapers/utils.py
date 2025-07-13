@@ -10,12 +10,8 @@ def clean(headlines: list[str]) -> list[str]:
         list[str]: List of cleaned, unique headlines.
     """
     cleaned_headlines = [
-        headline.replace("\n", " ").replace("  ", " ").strip() for headline in headlines
-    ]
-    cleaned_headlines = [
-        headline for headline in cleaned_headlines if len(headline.split(" ")) > 3
-    ]
-    cleaned_headlines = [
-        headline for headline in cleaned_headlines if headline not in ["", " "]
+        headline.replace("\n", " ").replace("  ", " ").strip()
+        for headline in headlines
+        if len(headline.split(" ")) > 3 and headline not in ["", " "]
     ]
     return list(set(cleaned_headlines))
