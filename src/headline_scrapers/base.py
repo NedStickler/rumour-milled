@@ -13,33 +13,53 @@ from time import perf_counter
 class BaseScraper:
     def __init__(
         self,
-        root: str,
-        locator_strings: list[str],
+        root: Optional[str] = None,
+        locator_strings: Optional[list[str]] = None,
         robots_txt_url: Optional[str] = None,
-        ignore_robots_txt: bool = False,
-        max_pages: int = 500,
-        max_workers: int = 20,
-        save_path: PathLike = "scraped_data.json",
+        ignore_robots_txt: Optional[bool] = None,
+        max_pages: Optional[int] = None,
+        max_workers: Optional[int] = None,
+        save_path: Optional[PathLike] = None,
         save_checkpoint: Optional[int] = None,
-        headless: bool = True,
-        config_path: PathLike = None,
+        headless: Optional[bool] = None,
+        user_agent: Optional[str] = None,
+        config_path: Optional[PathLike] = None,
     ) -> None:
-        self.root = root
-        self.locator_strings = locator_strings
-        self.ignore_robots_txt = ignore_robots_txt
-        self.max_pages = max_pages
-        self.max_workers = max_workers
-        self.save_path = save_path
+        self.config = self.load_config(config_path)
+
+        self.root = self.get_setting(param=root, key="root", required=True)
+        self.locator_strings = self.get_setting(
+            param=locator_strings, key="locator_strings", required=True
+        )
+        self.ignore_robots_txt = self.get_setting(
+            param=ignore_robots_txt, key="ignore_robots_txt", default=False
+        )
+        self.max_pages = self.get_setting(param=max_pages, key="max_pages", default=100)
+        self.max_workers = self.get_setting(
+            param=max_workers, key="max_workers", default=20
+        )
+        self.save_path = self.get_setting(
+            param=save_path, key="save_path", default="scraped_items.json"
+        )
+        self.save_checkpoint = self.get_setting(
+            param=save_checkpoint, key="save_checkpoint", default=10
+        )
+        self.headless = self.get_setting(param=headless, key="headless", default=True)
+        self.user_agent = self.get_setting(
+            param=user_agent, key="user_agent", default="python-requests/2.25.0"
+        )
+
         self.page_number = 1
-        self.page_number_lock = asyncio.Lock()
-        self.write_lock = asyncio.Lock()
         self.queue = asyncio.Queue()
         self.visited = set()
-        self.visited_lock = asyncio.Lock()
         self.items = []
-        self.save_checkpoint = save_checkpoint
-        self.headless = headless
         self.failures = []
+
+        self.page_number_lock = asyncio.Lock()
+        self.write_lock = asyncio.Lock()
+        self.visited_lock = asyncio.Lock()
+
+        robots_txt_url = self.get_setting(param=robots_txt_url, key="robots_txt_url")
         self.robots_parser = self.setup_robots_txt_parser(robots_txt_url)
         self.logger = self.setup_logger()
 
@@ -54,9 +74,7 @@ class BaseScraper:
         async with async_playwright() as p:
             # Setup
             browser = await p.chromium.launch(headless=self.headless)
-            self.context = await browser.new_context(
-                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
-            )
+            self.context = await browser.new_context(user_agent=self.user_agent)
             page = await self.context.new_page()
             # Open root page and deal with cookies
             await page.goto(self.root, wait_until="load")
@@ -73,6 +91,26 @@ class BaseScraper:
 
     async def deal_with_cookies(self, page) -> None:
         return
+
+    def get_setting(self, param, key: str, default=None, required=False):
+        if param is not None:
+            return param
+        if self.config and key in self.config:
+            return self.config[key]
+        if default is not None:
+            return default
+        if required:
+            raise ValueError(f"Missing required config or argument: {key}")
+        return None
+
+    def load_config(self, config_path: PathLike) -> dict:
+        config = {}
+        if config_path:
+            import yaml
+
+            with open(config_path) as f:
+                config = yaml.safe_load(f)
+        return config
 
     def setup_robots_txt_parser(self, robots_txt_url: Optional[str] = None) -> bool:
         if robots_txt_url is None:
