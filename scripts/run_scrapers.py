@@ -47,7 +47,7 @@ if __name__ == "__main__":
         # ("Irish Times", irish_times_scraper),
         # ("BusinessTech", businesstech_scraper),
         # ("RNZ", rnz_scraper),
-        # ("Scotsman", herald_scraper),
+        # ("Herald", herald_scraper),
     ]
 
     for name, scraper in scrapers:

@@ -22,8 +22,8 @@ class BaseScraper:
         save_path: PathLike = "scraped_data.json",
         save_checkpoint: Optional[int] = None,
         headless: bool = True,
+        config_path: PathLike = None,
     ) -> None:
-        self.start_time = perf_counter()
         self.root = root
         self.locator_strings = locator_strings
         self.ignore_robots_txt = ignore_robots_txt
@@ -44,9 +44,10 @@ class BaseScraper:
         self.logger = self.setup_logger()
 
     def run(self) -> None:
+        start_time = perf_counter()
         asyncio.run(self.start())
         self.logger.info(
-            f"Scraping completed in {perf_counter() - self.start_time:.2f} seconds."
+            f"Scraping completed in {perf_counter() - start_time:.2f} seconds."
         )
 
     async def start(self) -> None:
