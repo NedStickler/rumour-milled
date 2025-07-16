@@ -11,6 +11,46 @@ from time import perf_counter
 
 
 class BaseScraper:
+    """Base class for concurrent web scraping using Playwright and asyncio.
+
+    This class provides a configurable framework for scraping web pages concurrently, handling navigation, queueing, robots.txt compliance, and saving scraped data. Supports configuration via arguments or YAML config file.
+
+    Args:
+        root (str, optional): The root URL to start scraping from.
+        locator_strings (list[str], optional): List of CSS/XPath selectors to locate elements to scrape.
+        robots_txt_url (str, optional): URL to a robots.txt file. If None, will try root + '/robots.txt'.
+        ignore_robots_txt (bool, optional): If True, robots.txt rules are ignored. Defaults to False.
+        max_pages (int, optional): Maximum number of pages to scrape. Defaults to 100.
+        max_workers (int, optional): Number of concurrent workers. Defaults to 20.
+        save_path (PathLike, optional): Path to save scraped items. Defaults to 'scraped_items.json'.
+        save_checkpoint (int, optional): Save after this many pages. Defaults to 10.
+        headless (bool, optional): Whether to run browser in headless mode. Defaults to True.
+        user_agent (str, optional): User agent string for browser. Defaults to 'python-requests/2.25.0'.
+        config_path (PathLike, optional): Path to YAML config file for scraper settings.
+
+    Attributes:
+        config (dict): Loaded configuration from YAML file (if provided).
+        root (str): The root URL.
+        locator_strings (list[str]): List of selectors for scraping.
+        ignore_robots_txt (bool): Whether to ignore robots.txt.
+        max_pages (int): Max pages to scrape.
+        max_workers (int): Number of concurrent workers.
+        save_path (PathLike): Path to save data.
+        save_checkpoint (int): Save checkpoint interval.
+        headless (bool): Headless browser flag.
+        user_agent (str): User agent string.
+        page_number (int): Current page number.
+        queue (asyncio.Queue): Queue of URLs to visit.
+        visited (set): Set of visited URLs.
+        items (list): List of scraped items.
+        failures (list): List of (url, exception) tuples for failed pages.
+        page_number_lock (asyncio.Lock): Lock for page number updates.
+        write_lock (asyncio.Lock): Lock for writing items.
+        visited_lock (asyncio.Lock): Lock for updating visited URLs.
+        robots_parser (RobotsTxtParser): Parser for robots.txt.
+        logger (logging.Logger): Logger for scraper events.
+    """
+
     def __init__(
         self,
         root: Optional[str] = None,
@@ -25,6 +65,7 @@ class BaseScraper:
         user_agent: Optional[str] = None,
         config_path: Optional[PathLike] = None,
     ) -> None:
+        """Initialize the BaseScraper with configuration from arguments or YAML file."""
         self.config = self.load_config(config_path)
 
         self.root = self.get_setting(param=root, key="root", required=True)
@@ -64,6 +105,7 @@ class BaseScraper:
         self.logger = self.setup_logger()
 
     def run(self) -> None:
+        """Run the scraper asynchronously, logging total execution time."""
         start_time = perf_counter()
         asyncio.run(self.start())
         self.logger.info(
@@ -71,6 +113,7 @@ class BaseScraper:
         )
 
     async def start(self) -> None:
+        """Start the asynchronous scraping process, launching browser and workers."""
         async with async_playwright() as p:
             # Setup
             browser = await p.chromium.launch(headless=self.headless)
@@ -90,9 +133,11 @@ class BaseScraper:
             await self.save()
 
     async def deal_with_cookies(self, page) -> None:
+        """Handle cookie consent dialogs or banners if needed. Override in subclasses for custom logic."""
         return
 
     def get_setting(self, param, key: str, default=None, required=False):
+        """Get a configuration setting from argument, config file, or default value."""
         if param is not None:
             return param
         if self.config and key in self.config:
@@ -104,6 +149,7 @@ class BaseScraper:
         return None
 
     def load_config(self, config_path: PathLike) -> dict:
+        """Load scraper configuration from a YAML file if provided."""
         config = {}
         if config_path:
             import yaml
@@ -113,6 +159,7 @@ class BaseScraper:
         return config
 
     def setup_robots_txt_parser(self, robots_txt_url: Optional[str] = None) -> bool:
+        """Set up the robots.txt parser for the scraper."""
         if robots_txt_url is None:
             robots_txt_url = f'{self.root.rstrip("/")}/robots.txt'
         rp = RobotsTxtParser(robots_txt_url)
@@ -123,6 +170,7 @@ class BaseScraper:
         return rp
 
     def setup_logger(self) -> None:
+        """Set up a logger for the scraper, logging to both console and file."""
         save_folder = Path(self.save_path).parent
         logging.basicConfig(
             level=logging.INFO,
@@ -135,6 +183,7 @@ class BaseScraper:
         return logging.getLogger(self.__class__.__name__)
 
     async def process_queue(self) -> None:
+        """Process the queue of URLs to scrape, handling concurrency and checkpoints."""
         while True:
             # Guard conditions
             async with self.page_number_lock:
@@ -168,6 +217,7 @@ class BaseScraper:
             await asyncio.sleep(0.5)
 
     async def scrape_page(self, url: str, page) -> None:
+        """Scrape a single page, extract elements and hrefs, and add new URLs to the queue."""
         self.logger.info(f"Scraping {url}")
         await page.goto(url, wait_until="load")
         async with self.visited_lock:
@@ -185,6 +235,7 @@ class BaseScraper:
             self.items.extend(elements_text)
 
     async def can_visit(self, url: str) -> bool:
+        """Check if a URL can be visited (valid, not visited, allowed by robots.txt)."""
         valid_url = validate_url(url)
         async with self.visited_lock:
             visited = url in self.visited
@@ -192,23 +243,27 @@ class BaseScraper:
         return valid_url and not visited and passed_robots
 
     def normalise_url(self, url: str) -> str:
+        """Normalize relative URLs to absolute URLs based on root."""
         if url[0] == "/":
             return self.root.rstrip("/") + url
         return url
 
     async def get_elements(self, page) -> list[str]:
+        """Get elements matching the locator strings on the current page."""
         elements = []
         for locator_string in self.locator_strings:
             elements += await page.locator(locator_string).all()
         return elements
 
     async def get_hrefs(self, page) -> list[str]:
+        """Get href attributes from all anchor tags on the current page."""
         hrefs = await page.eval_on_selector_all(
             "a[href]", "elements => elements.map(e => e.href)"
         )
         return hrefs
 
     async def save(self) -> None:
+        """Save the scraped items to the specified save_path as JSON, appending to existing data."""
         async with self.write_lock:
             self.logger.info("Saving current items")
             if not Path(self.save_path).exists():
