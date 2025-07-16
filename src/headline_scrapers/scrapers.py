@@ -6,16 +6,7 @@ from typing import Optional
 
 class YahooScraper(BaseScraper):
     def __init__(self, **kwargs) -> None:
-        super().__init__(
-            root="https://news.yahoo.com",
-            locator_strings=[
-                '[data-test-locator="headline"]',
-                '[data-test-locator="item-title"]',
-                '[data-test-locator="stream-item-title"]',
-                '[class*="headline"]',
-            ],
-            **kwargs,
-        )
+        super().__init__(root="https://news.yahoo.com", **kwargs)
 
     async def deal_with_cookies(self, page) -> None:
         await page.get_by_role("button", name="reject").click()
@@ -27,21 +18,12 @@ class SkyScraper(BaseScraper):
         self,
         **kwargs,
     ) -> None:
-        super().__init__(
-            root="https://news.sky.com",
-            locator_strings=['[class*="headline"]'],
-            **kwargs,
-        )
+        super().__init__(root="https://news.sky.com", **kwargs)
 
 
 class CBCScraper(BaseScraper):
-    def __init__(
-        self,
-        **kwargs,
-    ) -> None:
-        super().__init__(
-            root="https://www.cbc.ca", locator_strings=['[class*="headline"]'], **kwargs
-        )
+    def __init__(self, **kwargs) -> None:
+        super().__init__(root="https://www.cbc.ca", **kwargs)
 
     async def deal_with_cookies(self, page) -> None:
         await page.get_by_role("button", name="manage").click()
@@ -51,33 +33,18 @@ class CBCScraper(BaseScraper):
 
 
 class ABCScraper(BaseScraper):
-    def __init__(
-        self,
-        **kwargs,
-    ) -> None:
-        super().__init__(
-            root="https://www.abc.net.au",
-            locator_strings=['[data-component*="CardHeading"]'],
-            **kwargs,
-        )
+    def __init__(self, **kwargs) -> None:
+        super().__init__(root="https://www.abc.net.au", **kwargs)
 
 
 class FoxScraper(BaseScraper):
     def __init__(self, **kwargs) -> None:
-        super().__init__(
-            root="https://www.foxnews.com",
-            locator_strings=['[class*="title"]'],
-            **kwargs,
-        )
+        super().__init__(root="https://www.foxnews.com", **kwargs)
 
 
 class NBCScraper(BaseScraper):
     def __init__(self, **kwargs) -> None:
-        super().__init__(
-            root="https://www.nbcnews.com",
-            locator_strings=['[class*="headline"]'],
-            **kwargs,
-        )
+        super().__init__(root="https://www.nbcnews.com", **kwargs)
 
     async def deal_with_cookies(self, page):
         await page.get_by_role("button", name="Continue").click()
@@ -86,11 +53,7 @@ class NBCScraper(BaseScraper):
 
 class IrishTimesScraper(BaseScraper):
     def __init__(self, **kwargs) -> None:
-        super().__init__(
-            root="https://www.irishtimes.com",
-            locator_strings=['[class*="heading"]'],
-            **kwargs,
-        )
+        super().__init__(root="https://www.irishtimes.com", **kwargs)
 
     async def deal_with_cookies(self, page):
         await page.get_by_role("button", name="manage").click()
@@ -101,29 +64,17 @@ class IrishTimesScraper(BaseScraper):
 
 class BusinessTechScraper(BaseScraper):
     def __init__(self, **kwargs) -> None:
-        super().__init__(
-            root="https://businesstech.co.za",
-            locator_strings=['[class*="entry-title"]'],
-            **kwargs,
-        )
+        super().__init__(root="https://businesstech.co.za", **kwargs)
 
 
 class RNZScraper(BaseScraper):
     def __init__(self, **kwargs) -> None:
-        super().__init__(
-            root="https://www.rnz.co.nz",
-            locator_strings=['[class*="headline"]'],
-            **kwargs,
-        )
+        super().__init__(root="https://www.rnz.co.nz", **kwargs)
 
 
 class HeraldScraper(BaseScraper):
     def __init__(self, **kwargs) -> None:
-        super().__init__(
-            root="https://www.heraldscotland.com",
-            locator_strings=['[class*="headline"]'],
-            **kwargs,
-        )
+        super().__init__(root="https://www.heraldscotland.com", **kwargs)
 
     async def deal_with_cookies(self, page) -> None:
         try:

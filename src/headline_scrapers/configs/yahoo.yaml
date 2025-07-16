@@ -6,7 +6,7 @@ locator_strings:
 - '[class*="headline"]'
 robots_txt_url: "https://news.yahoo.com/robots.txt"
 ignore_robots_txt: false
-max_pages: 500
+max_pages: 15
 max_workers: 20
 save_path: "scraped_yahoo_headlines.json"
 save_checkpoint: false
