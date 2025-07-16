@@ -1,7 +1,6 @@
 from os import PathLike
 from headline_scrapers.base import BaseScraper
 from playwright.sync_api import TimeoutError
-from typing import Optional
 
 
 class YahooScraper(BaseScraper):
