@@ -3,7 +3,7 @@ locator_strings:
 - '[class*="title"]'
 robots_txt_url: "https://www.foxnews.com/robots.txt"
 ignore_robots_txt: false
-max_pages: 500
+max_pages: 20
 max_workers: 20
 save_path: "scraped_fox_headlines.json"
 save_checkpoint: false

@@ -3,7 +3,7 @@ locator_strings:
 - '[data-component*="CardHeading"]'
 robots_txt_url: "https://www.abc.net.au/robots.txt"
 ignore_robots_txt: false
-max_pages: 500
+max_pages: 20
 max_workers: 20
 save_path: "scraped_abc_headlines.json"
 save_checkpoint: false

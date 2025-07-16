@@ -1,4 +1,3 @@
-from os import PathLike
 from headline_scrapers.base import BaseScraper
 from playwright.sync_api import TimeoutError
 
@@ -22,10 +21,13 @@ class CBCScraper(BaseScraper):
         super().__init__(root="https://www.cbc.ca", **kwargs)
 
     async def deal_with_cookies(self, page) -> None:
-        await page.get_by_role("button", name="manage").click()
-        await page.wait_for_load_state()
-        await page.get_by_role("button", name="Confirm choices").click()
-        await page.wait_for_load_state()
+        try:
+            await page.get_by_role("button", name="manage").click()
+            await page.wait_for_load_state()
+            await page.get_by_role("button", name="Confirm choices").click()
+            await page.wait_for_load_state()
+        except TimeoutError:
+            self.logger.error("Failed to find cookies management")
 
 
 class ABCScraper(BaseScraper):
@@ -43,8 +45,11 @@ class NBCScraper(BaseScraper):
         super().__init__(root="https://www.nbcnews.com", **kwargs)
 
     async def deal_with_cookies(self, page):
-        await page.get_by_role("button", name="Continue").click()
-        await page.wait_for_load_state()
+        try:
+            await page.get_by_role("button", name="Continue").click()
+            await page.wait_for_load_state()
+        except TimeoutError:
+            self.logger.error("Failed to find cookies management")
 
 
 class IrishTimesScraper(BaseScraper):
@@ -79,4 +84,4 @@ class HeraldScraper(BaseScraper):
             await page.get_by_role("button", name="READ FOR FREE").click()
             await page.wait_for_load_state()
         except TimeoutError:
-            print("Failed to find cookies management")
+            self.logger.error("Failed to find cookies management")
