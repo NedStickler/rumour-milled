@@ -13,10 +13,7 @@ class YahooScraper(BaseScraper):
 
 
 class SkyScraper(BaseScraper):
-    def __init__(
-        self,
-        **kwargs,
-    ) -> None:
+    def __init__(self, **kwargs) -> None:
         super().__init__(root="https://news.sky.com", **kwargs)
 
 
