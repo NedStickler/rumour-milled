@@ -1,7 +1,7 @@
 import json
 import asyncio
 import logging
-from playwright.async_api import async_playwright, TimeoutError
+from playwright.async_api import async_playwright
 from os import PathLike
 from pathlib import Path
 from validators.url import url as validate_url
@@ -65,7 +65,21 @@ class BaseScraper:
         user_agent: Optional[str] = None,
         config_path: Optional[PathLike] = None,
     ) -> None:
-        """Initialize the BaseScraper with configuration from arguments or YAML file."""
+        """Initialize the BaseScraper with configuration from arguments or YAML file.
+
+        Args:
+            root (Optional[str]): The root URL to start scraping from.
+            locator_strings (Optional[list[str]]): List of CSS/XPath selectors to locate elements to scrape.
+            robots_txt_url (Optional[str]): URL to a robots.txt file.
+            ignore_robots_txt (Optional[bool]): If True, robots.txt rules are ignored.
+            max_pages (Optional[int]): Maximum number of pages to scrape.
+            max_workers (Optional[int]): Number of concurrent workers.
+            save_path (Optional[PathLike]): Path to save scraped items.
+            save_checkpoint (Optional[int]): Save after this many pages.
+            headless (Optional[bool]): Whether to run browser in headless mode.
+            user_agent (Optional[str]): User agent string for browser.
+            config_path (Optional[PathLike]): Path to YAML config file for scraper settings.
+        """
         self.config = self.load_config(config_path)
 
         self.root = self.get_setting(param=root, key="root", required=True)
@@ -105,7 +119,7 @@ class BaseScraper:
         self.logger = self.setup_logger()
 
     def run(self) -> None:
-        """Run the scraper asynchronously, logging total execution time."""
+        """Run the scraper asynchronously."""
         start_time = perf_counter()
         asyncio.run(self.start())
         self.logger.info(
@@ -133,11 +147,25 @@ class BaseScraper:
             await self.save()
 
     async def deal_with_cookies(self, page) -> None:
-        """Handle cookie consent dialogs or banners if needed. Override in subclasses for custom logic."""
+        """Handle cookie consent dialogs or banners if needed. Override in subclasses for custom logic.
+
+        Args:
+            page: Playwright page object.
+        """
         return
 
     def get_setting(self, param, key: str, default=None, required=False):
-        """Get a configuration setting from argument, config file, or default value."""
+        """Get a configuration setting from argument, config file, or default value.
+
+        Args:
+            param: The parameter value provided directly.
+            key (str): The config key to look up.
+            default: Default value if not provided.
+            required (bool): Whether the setting is required.
+
+        Returns:
+            The resolved setting value.
+        """
         if param is not None:
             return param
         if self.config and key in self.config:
@@ -149,7 +177,14 @@ class BaseScraper:
         return None
 
     def load_config(self, config_path: PathLike) -> dict:
-        """Load scraper configuration from a YAML file if provided."""
+        """Load scraper configuration from a YAML file if provided.
+
+        Args:
+            config_path (PathLike): Path to the YAML config file.
+
+        Returns:
+            dict: Loaded configuration dictionary.
+        """
         config = {}
         if config_path:
             import yaml
@@ -159,7 +194,14 @@ class BaseScraper:
         return config
 
     def setup_robots_txt_parser(self, robots_txt_url: Optional[str] = None) -> bool:
-        """Set up the robots.txt parser for the scraper."""
+        """Set up the robots.txt parser for the scraper.
+
+        Args:
+            robots_txt_url (Optional[str]): URL to robots.txt file.
+
+        Returns:
+            RobotsTxtParser: Configured robots.txt parser.
+        """
         if robots_txt_url is None:
             robots_txt_url = f'{self.root.rstrip("/")}/robots.txt'
         rp = RobotsTxtParser(robots_txt_url)
@@ -170,7 +212,11 @@ class BaseScraper:
         return rp
 
     def setup_logger(self) -> None:
-        """Set up a logger for the scraper, logging to both console and file."""
+        """Set up a logger for the scraper, logging to both console and file.
+
+        Returns:
+            logging.Logger: Configured logger instance.
+        """
         save_folder = Path(self.save_path).parent
         logging.basicConfig(
             level=logging.INFO,
@@ -217,7 +263,12 @@ class BaseScraper:
             await asyncio.sleep(0.5)
 
     async def scrape_page(self, url: str, page) -> None:
-        """Scrape a single page, extract elements and hrefs, and add new URLs to the queue."""
+        """Scrape a single page, extract elements and hrefs, and add new URLs to the queue.
+
+        Args:
+            url (str): URL of the page to scrape.
+            page: Playwright page object.
+        """
         self.logger.info(f"Scraping {url}")
         await page.goto(url, wait_until="load")
         async with self.visited_lock:
@@ -235,7 +286,14 @@ class BaseScraper:
             self.items.extend(elements_text)
 
     async def can_visit(self, url: str) -> bool:
-        """Check if a URL can be visited (valid, not visited, allowed by robots.txt)."""
+        """Check if a URL can be visited (valid, not visited, allowed by robots.txt).
+
+        Args:
+            url (str): URL to check.
+
+        Returns:
+            bool: True if the URL can be visited, False otherwise.
+        """
         valid_url = validate_url(url)
         async with self.visited_lock:
             visited = url in self.visited
@@ -243,20 +301,41 @@ class BaseScraper:
         return valid_url and not visited and passed_robots
 
     def normalise_url(self, url: str) -> str:
-        """Normalize relative URLs to absolute URLs based on root."""
+        """Normalise relative URLs to absolute URLs based on root.
+
+        Args:
+            url (str): URL to normalise.
+
+        Returns:
+            str: Normalised absolute URL.
+        """
         if url[0] == "/":
             return self.root.rstrip("/") + url
         return url
 
     async def get_elements(self, page) -> list[str]:
-        """Get elements matching the locator strings on the current page."""
+        """Get elements matching the locator strings on the current page.
+
+        Args:
+            page: Playwright page object.
+
+        Returns:
+            list[str]: List of element handles matching the locator strings.
+        """
         elements = []
         for locator_string in self.locator_strings:
             elements += await page.locator(locator_string).all()
         return elements
 
     async def get_hrefs(self, page) -> list[str]:
-        """Get href attributes from all anchor tags on the current page."""
+        """Get href attributes from all anchor tags on the current page.
+
+        Args:
+            page: Playwright page object.
+
+        Returns:
+            list[str]: List of href URLs found on the page.
+        """
         hrefs = await page.eval_on_selector_all(
             "a[href]", "elements => elements.map(e => e.href)"
         )
