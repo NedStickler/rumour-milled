@@ -1,61 +1,54 @@
 from headline_scrapers.scrapers import *
+from datetime import datetime
+from pathlib import Path
 
 
 if __name__ == "__main__":
+    datetime_now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+    save_folder_path = Path(f"data/raw/headlines/scraped/{datetime_now}")
+    save_folder_path.mkdir(parents=True, exist_ok=True)
+    save_folder_path = str(save_folder_path)
+    configs_folder_path = "src/headline_scrapers/configs"
+
     yahoo_scraper = YahooScraper(
-        locator_strings=[
-            '[data-test-locator="headline"]',
-            '[data-test-locator="item-title"]',
-            '[data-test-locator="stream-item-title"]',
-            '[class*="headline"]',
-        ],
-        save_path="data/raw/scraped_yahoo_headlines.json",
+        save_path=save_folder_path + "/scraped_yahoo_headlines.json",
+        config_path=configs_folder_path + "/yahoo.yaml",
     )
-
     sky_scraper = SkyScraper(
-        locator_strings=['[class*="headline"]'],
-        save_path="data/raw/scraped_sky_headlines.json",
+        save_path=save_folder_path + "/scraped_sky_headlines.json",
+        config_path=configs_folder_path + "/sky.yaml",
     )
-
     cbc_scraper = CBCScraper(
-        locator_strings=['[class*="headline"]'],
-        save_path="data/raw/scraped_cbc_headlines.json",
-        headless=False,
+        save_path=save_folder_path + "/scraped_cbc_headlines.json",
+        config_path=configs_folder_path + "/cbc.yaml",
     )
-
     abc_scraper = ABCScraper(
-        locator_strings=['[data-component*="CardHeading"]'],
-        save_path="data/raw/scraped_abc_headlines.json",
+        save_path=save_folder_path + "/scraped_abc_headlines.json",
+        config_path=configs_folder_path + "/abc.yaml",
     )
-
     fox_scraper = FoxScraper(
-        locator_strings=['[class*="title"]'],
-        save_path="data/raw/scraped_fox_headlines.json",
+        save_path=save_folder_path + "/scraped_fox_headlines.json",
+        config_path=configs_folder_path + "/fox.yaml",
     )
-
     nbc_scraper = NBCScraper(
-        locator_strings=['[class*="headline"]'],
-        save_path="data/raw/scraped_nbc_headlines.json",
+        save_path=save_folder_path + "/scraped_nbc_headlines.json",
+        config_path=configs_folder_path + "/nbc.yaml",
     )
-
     irish_times_scraper = IrishTimesScraper(
-        locator_strings=['[class*="heading"]'],
-        save_path="data/raw/scraped_irish_times_headlines.json",
+        save_path=save_folder_path + "/scraped_irish_times_headlines.json",
+        config_path=configs_folder_path + "/irish-times.yaml",
     )
-
     businesstech_scraper = BusinessTechScraper(
-        locator_strings=['[class*="entry-title"]'],
-        save_path="data/raw/scraped_business_tech_headlines.json",
+        save_path=save_folder_path + "/scraped_business_tech_headlines.json",
+        config_path=configs_folder_path + "/businesstech.yaml",
     )
-
     rnz_scraper = RNZScraper(
-        locator_strings=['[class*="headline"]'],
-        save_path="data/raw/scraped_rnz_headlines.json",
+        save_path=save_folder_path + "/scraped_rnz_headlines.json",
+        config_path=configs_folder_path + "/rnz.yaml",
     )
-
     herald_scraper = HeraldScraper(
-        locator_strings=['[class*="headline"]'],
-        save_path="data/raw/scraped_herald_headlines.json",
+        save_path=save_folder_path + "/scraped_herald_headlines.json",
+        config_path=configs_folder_path + "/herald.yaml",
     )
 
     scrapers = [
@@ -68,8 +61,8 @@ if __name__ == "__main__":
         ("Irish Times", irish_times_scraper),
         ("BusinessTech", businesstech_scraper),
         ("RNZ", rnz_scraper),
-        ("Scotsman", herald_scraper),
+        ("Herald", herald_scraper),
     ]
 
-    for name, obj in scrapers:
-        obj.start()
+    for name, scraper in scrapers:
+        scraper.run()
