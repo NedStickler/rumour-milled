@@ -28,6 +28,7 @@ dependencies = [
     "requests (>=2.32.4,<3.0.0)",
     "aiohttp (>=3.12.14,<4.0.0)",
     "aiofiles (>=24.1.0,<25.0.0)",
+    "boto3 (>=1.39.9,<2.0.0)",
 ]
 
 [tool.poetry]
