@@ -18,8 +18,8 @@ class HeadlinesGenerator:
         Args:
             client (Optional[OpenAI], optional): An OpenAI client instance. If None, loads API key from environment and creates a new client.
         """
+        load_dotenv()
         if client is None:
-            load_dotenv()
             client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
         self.client = client
         self.system_prompt = (
@@ -27,6 +27,7 @@ class HeadlinesGenerator:
             + "All responses must contain results resembling real news headlines. "
             + "The user will only provide a number, which indicates how many headlines to generate. Generate that many headlines, no more, no less. "
             + "You can reference current affairs in the headlines. "
+            + "The headline must not have truth to them. "
             + "The headlines must be in English. "
             + "The headlines must be concise, no more than 15 words each. "
             + "Only generate headlines, do not generate any other text or explanations. "
@@ -45,13 +46,20 @@ class HeadlinesGenerator:
         """
         if num_headlines > 30:
             warnings.warn(
-                "Generating more than 30 headlines results in inconsistent headline counts, consider reducing the number of headlines to 30 or fewer."
+                "Generating more than 20 headlines results in inconsistent headline counts, consider reducing the number of headlines to 30 or fewer."
             )
         response = self.client.responses.create(
-            model="gpt-4.1",
+            model="gpt-4o",
             input=[
                 {"role": "developer", "content": self.system_prompt},
                 {"role": "user", "content": str(num_headlines)},
             ],
         )
         return json.loads(response.output_text)
+
+
+if __name__ == "__main__":
+    hg = HeadlinesGenerator()
+    headlines = hg.generate_headlines(30)
+    print(len(headlines.get("headlines")))
+    print(headlines)
