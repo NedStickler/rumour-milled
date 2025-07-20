@@ -102,7 +102,7 @@ class BaseScraper:
             param=save_path, key="save_path", default="scraped_items.json"
         )
         self.log_path = self.get_setting(
-            param=save_path, key="log_path", default="scraper.log"
+            param=log_path, key="log_path", default="scrapers.log"
         )
         self.save_checkpoint = self.get_setting(
             param=save_checkpoint, key="save_checkpoint", default=10
@@ -131,7 +131,7 @@ class BaseScraper:
         start_time = perf_counter()
         asyncio.run(self.start())
         self.logger.info(
-            f"Scraped {self.page_number - 1} pages in {perf_counter() - start_time:.2f} seconds."
+            f"Scraped {self.page_number - len(self.failures) - 1} pages in {perf_counter() - start_time:.2f} seconds."
         )
 
     async def start(self) -> None:
