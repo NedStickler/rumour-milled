@@ -57,24 +57,26 @@ class HeadlineStore:
             for item in items:
                 batch.put_item(Item=item)
 
+    def get_items(self):
+        scan = self.table.scan()
+        items = scan["Items"]
+        pairs = []
+        for item in items:
+            pairs.append((item["headline"], item["label"]))
+        return pairs
+
 
 if __name__ == "__main__":
-
-    def print_items():
-        response = hs.table.scan()
-        items = response["Items"]
-        for item in items:
-            print(item)
-
     hs = HeadlineStore(aws_access_key_id="dummy", aws_secret_access_key="dummy")
-    headlines = (
-        "How the rise of green tech is feeding another environmental crisis",
-        "Aliens contact Washington with meeting planned this afternoon",
-    )
-    labels = (0, 1)
-    items = [
-        {"headline": headline, "label": label}
-        for headline, label in zip(headlines, labels)
-    ]
-    hs.put_items(items)
-    print_items()
+    # headlines = (
+    #     "How the rise of green tech is feeding another environmental crisis",
+    #     "Aliens contact Washington with meeting planned this afternoon",
+    #
+    # labels = (0, 1)
+    # items = [
+    #     {"headline": headline, "label": label}
+    #     for headline, label in zip(headlines, labels)
+    # ]
+    # hs.put_items(items)
+    items = hs.get_items()
+    print(items)
