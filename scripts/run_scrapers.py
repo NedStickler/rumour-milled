@@ -5,50 +5,48 @@ from pathlib import Path
 
 if __name__ == "__main__":
     datetime_now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-    save_folder_path = Path(f"data/raw/headlines/scraped/{datetime_now}")
-    save_folder_path.mkdir(parents=True, exist_ok=True)
-    save_folder_path = str(save_folder_path)
+    log_path = Path(f"data/raw/headlines/scraped/{datetime_now}")
+    log_path.mkdir(parents=True, exist_ok=True)
+    log_path = str(log_path) + "/scrapers.log"
     configs_folder_path = "src/headline_scrapers/configs"
 
     yahoo_scraper = YahooScraper(
-        save_path=save_folder_path + "/scraped_yahoo_headlines.json",
+        log_path=log_path,
         config_path=configs_folder_path + "/yahoo.yaml",
+        max_pages=100,
     )
     sky_scraper = SkyScraper(
-        save_path=save_folder_path + "/scraped_sky_headlines.json",
-        config_path=configs_folder_path + "/sky.yaml",
+        log_path=log_path, config_path=configs_folder_path + "/sky.yaml", max_pages=100
     )
     cbc_scraper = CBCScraper(
-        save_path=save_folder_path + "/scraped_cbc_headlines.json",
-        config_path=configs_folder_path + "/cbc.yaml",
+        log_path=log_path, config_path=configs_folder_path + "/cbc.yaml", max_pages=100
     )
     abc_scraper = ABCScraper(
-        save_path=save_folder_path + "/scraped_abc_headlines.json",
-        config_path=configs_folder_path + "/abc.yaml",
+        log_path=log_path, config_path=configs_folder_path + "/abc.yaml", max_pages=100
     )
     fox_scraper = FoxScraper(
-        save_path=save_folder_path + "/scraped_fox_headlines.json",
-        config_path=configs_folder_path + "/fox.yaml",
+        log_path=log_path, config_path=configs_folder_path + "/fox.yaml", max_pages=100
     )
     nbc_scraper = NBCScraper(
-        save_path=save_folder_path + "/scraped_nbc_headlines.json",
-        config_path=configs_folder_path + "/nbc.yaml",
+        log_path=log_path, config_path=configs_folder_path + "/nbc.yaml", max_pages=100
     )
     irish_times_scraper = IrishTimesScraper(
-        save_path=save_folder_path + "/scraped_irish_times_headlines.json",
+        log_path=log_path,
         config_path=configs_folder_path + "/irish-times.yaml",
+        max_pages=100,
     )
     businesstech_scraper = BusinessTechScraper(
-        save_path=save_folder_path + "/scraped_business_tech_headlines.json",
+        log_path=log_path,
         config_path=configs_folder_path + "/businesstech.yaml",
+        max_pages=100,
     )
     rnz_scraper = RNZScraper(
-        save_path=save_folder_path + "/scraped_rnz_headlines.json",
-        config_path=configs_folder_path + "/rnz.yaml",
+        log_path=log_path, config_path=configs_folder_path + "/rnz.yaml", max_pages=100
     )
     herald_scraper = HeraldScraper(
-        save_path=save_folder_path + "/scraped_herald_headlines.json",
+        log_path=log_path,
         config_path=configs_folder_path + "/herald.yaml",
+        max_pages=100,
     )
 
     scrapers = [

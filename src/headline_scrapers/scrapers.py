@@ -1,12 +1,14 @@
 from headline_scrapers.base import BaseScraper
-from headline_scrapers.utils import clean
+from headline_scrapers.utils import clean_headlines
 from storage.storage import HeadlineStore
 from playwright.sync_api import TimeoutError
+import logging
 
 
 class HeadlineScraper(BaseScraper):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        logging.getLogger("botocore").setLevel(logging.WARNING)
         self.headline_storage = HeadlineStore()
 
     async def save(self) -> None:
@@ -17,7 +19,8 @@ class HeadlineScraper(BaseScraper):
         self.logger.info("Saving current items")
         async with self.write_lock:
             items = [
-                {"headline": headline, "label": 0} for headline in clean(self.items)
+                {"headline": headline, "label": 0}
+                for headline in clean_headlines(self.items)
             ]
             self.headline_storage.put_items(items)
             self.items.clear()

@@ -1,4 +1,4 @@
-def clean(headlines: list[str]) -> list[str]:
+def clean_headlines(headlines: list[str]) -> list[str]:
     """Clean and filter a list of headlines.
 
     Removes newlines, extra spaces, headlines with fewer than four words, and empty strings. Returns unique cleaned headlines.
