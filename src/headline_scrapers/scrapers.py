@@ -1,4 +1,5 @@
 from headline_scrapers.base import BaseScraper
+from headline_scrapers.utils import clean
 from storage.storage import HeadlineStore
 from playwright.sync_api import TimeoutError
 
@@ -9,8 +10,15 @@ class HeadlineScraper(BaseScraper):
         self.headline_storage = HeadlineStore()
 
     async def save(self) -> None:
+        """Saves the headline to DynamoDB storage.
+        The function is async in line with the parent version.
+        This is only to hold the write lock so that no other coroutines can write to the items list between putting and clearing.
+        """
+        self.logger.info("Saving current items")
         async with self.write_lock:
-            items = [{"headline": headline, "label": 0} for headline in self.items]
+            items = [
+                {"headline": headline, "label": 0} for headline in clean(self.items)
+            ]
             self.headline_storage.put_items(items)
             self.items.clear()
 
@@ -32,8 +40,11 @@ class YahooScraper(HeadlineScraper):
         Args:
             page: Playwright page object.
         """
-        await page.get_by_role("button", name="reject").click()
-        await page.wait_for_load_state()
+        try:
+            await page.get_by_role("button", name="reject").click()
+            await page.wait_for_load_state()
+        except TimeoutError:
+            self.logger.error("Failed to find cookies management")
 
 
 class SkyScraper(HeadlineScraper):

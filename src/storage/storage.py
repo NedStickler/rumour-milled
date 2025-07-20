@@ -1,6 +1,7 @@
 import boto3
 import os
 from typing import Optional
+from dotenv import load_dotenv
 
 
 class HeadlineStore:
@@ -26,6 +27,7 @@ class HeadlineStore:
             aws_secret_access_key (Optional[str]): AWS secret access key. If None, uses environment variable.
             **kwargs: Additional keyword arguments for boto3.resource.
         """
+        load_dotenv()
         if aws_access_key_id is None:
             aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
         if aws_secret_access_key is None:
