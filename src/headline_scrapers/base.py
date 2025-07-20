@@ -224,6 +224,7 @@ class BaseScraper:
         save_folder = Path(self.save_path).parent
         logging.basicConfig(
             level=logging.INFO,
+            encoding="utf-8",
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
             handlers=[
                 logging.StreamHandler(),

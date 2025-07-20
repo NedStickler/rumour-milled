@@ -10,37 +10,15 @@ class HeadlineStore:
     This class manages the connection to DynamoDB, table creation, and basic CRUD operations for headline data.
     """
 
-    def __init__(
-        self,
-        region_name: str = "us-west-2",
-        endpoint_url: str = "http://localhost:8000",
-        aws_access_key_id: Optional[str] = None,
-        aws_secret_access_key: Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, region_name: str = "eu-west-2", **kwargs):
         """Initialize the HeadlineStore and connect to DynamoDB.
 
         Args:
-            region_name (str): AWS region name. Defaults to "us-west-2".
-            endpoint_url (str): DynamoDB endpoint URL. Defaults to "http://localhost:8000".
-            aws_access_key_id (Optional[str]): AWS access key ID. If None, uses environment variable.
-            aws_secret_access_key (Optional[str]): AWS secret access key. If None, uses environment variable.
+            region_name (str): AWS region name. Defaults to "eu-west-2".
             **kwargs: Additional keyword arguments for boto3.resource.
         """
         load_dotenv()
-        if aws_access_key_id is None:
-            aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-        if aws_secret_access_key is None:
-            aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
-
-        self.db = boto3.resource(
-            "dynamodb",
-            region_name=region_name,
-            endpoint_url=endpoint_url,
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
-            **kwargs
-        )
+        self.db = boto3.resource("dynamodb", region_name=region_name, **kwargs)
         if not self._table_exists("Headlines"):
             self.table = self.create_table()
         else:
