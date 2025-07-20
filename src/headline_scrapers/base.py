@@ -10,6 +10,10 @@ from typing import Optional
 from time import perf_counter
 
 
+# TODO:
+# - Move logs into S3
+
+
 class BaseScraper:
     """Base class for concurrent web scraping using Playwright and asyncio.
 
