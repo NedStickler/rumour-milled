@@ -1,8 +1,21 @@
 from headline_scrapers.base import BaseScraper
+from storage.storage import HeadlineStore
 from playwright.sync_api import TimeoutError
 
 
-class YahooScraper(BaseScraper):
+class HeadlineScraper(BaseScraper):
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.headline_storage = HeadlineStore()
+
+    async def save(self) -> None:
+        async with self.write_lock:
+            items = [{"headline": headline, "label": 0} for headline in self.items]
+            self.headline_storage.put_items(items)
+            self.items.clear()
+
+
+class YahooScraper(HeadlineScraper):
     """Scraper for Yahoo News headlines."""
 
     def __init__(self, **kwargs) -> None:
@@ -23,7 +36,7 @@ class YahooScraper(BaseScraper):
         await page.wait_for_load_state()
 
 
-class SkyScraper(BaseScraper):
+class SkyScraper(HeadlineScraper):
     """Scraper for Sky News headlines."""
 
     def __init__(self, **kwargs) -> None:
@@ -35,7 +48,7 @@ class SkyScraper(BaseScraper):
         super().__init__(root="https://news.sky.com", **kwargs)
 
 
-class CBCScraper(BaseScraper):
+class CBCScraper(HeadlineScraper):
     """Scraper for CBC News headlines."""
 
     def __init__(self, **kwargs) -> None:
@@ -61,7 +74,7 @@ class CBCScraper(BaseScraper):
             self.logger.error("Failed to find cookies management")
 
 
-class ABCScraper(BaseScraper):
+class ABCScraper(HeadlineScraper):
     """Scraper for ABC News headlines."""
 
     def __init__(self, **kwargs) -> None:
@@ -73,7 +86,7 @@ class ABCScraper(BaseScraper):
         super().__init__(root="https://www.abc.net.au", **kwargs)
 
 
-class FoxScraper(BaseScraper):
+class FoxScraper(HeadlineScraper):
     """Scraper for Fox News headlines."""
 
     def __init__(self, **kwargs) -> None:
@@ -85,7 +98,7 @@ class FoxScraper(BaseScraper):
         super().__init__(root="https://www.foxnews.com", **kwargs)
 
 
-class NBCScraper(BaseScraper):
+class NBCScraper(HeadlineScraper):
     """Scraper for NBC News headlines."""
 
     def __init__(self, **kwargs) -> None:
@@ -109,7 +122,7 @@ class NBCScraper(BaseScraper):
             self.logger.error("Failed to find cookies management")
 
 
-class IrishTimesScraper(BaseScraper):
+class IrishTimesScraper(HeadlineScraper):
     """Scraper for Irish Times headlines."""
 
     def __init__(self, **kwargs) -> None:
@@ -132,7 +145,7 @@ class IrishTimesScraper(BaseScraper):
         await page.wait_for_load_state()
 
 
-class BusinessTechScraper(BaseScraper):
+class BusinessTechScraper(HeadlineScraper):
     """Scraper for BusinessTech headlines."""
 
     def __init__(self, **kwargs) -> None:
@@ -144,7 +157,7 @@ class BusinessTechScraper(BaseScraper):
         super().__init__(root="https://businesstech.co.za", **kwargs)
 
 
-class RNZScraper(BaseScraper):
+class RNZScraper(HeadlineScraper):
     """Scraper for RNZ headlines."""
 
     def __init__(self, **kwargs) -> None:
@@ -156,7 +169,7 @@ class RNZScraper(BaseScraper):
         super().__init__(root="https://www.rnz.co.nz", **kwargs)
 
 
-class HeraldScraper(BaseScraper):
+class HeraldScraper(HeadlineScraper):
     """Scraper for Herald Scotland headlines."""
 
     def __init__(self, **kwargs) -> None:
