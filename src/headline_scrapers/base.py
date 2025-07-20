@@ -64,6 +64,7 @@ class BaseScraper:
         max_pages: Optional[int] = None,
         max_workers: Optional[int] = None,
         save_path: Optional[PathLike] = None,
+        log_path: Optional[PathLike] = None,
         save_checkpoint: Optional[int] = None,
         headless: Optional[bool] = None,
         user_agent: Optional[str] = None,
@@ -100,6 +101,9 @@ class BaseScraper:
         self.save_path = self.get_setting(
             param=save_path, key="save_path", default="scraped_items.json"
         )
+        self.log_path = self.get_setting(
+            param=save_path, key="log_path", default="scraper.log"
+        )
         self.save_checkpoint = self.get_setting(
             param=save_checkpoint, key="save_checkpoint", default=10
         )
@@ -127,7 +131,7 @@ class BaseScraper:
         start_time = perf_counter()
         asyncio.run(self.start())
         self.logger.info(
-            f"Scraping completed in {perf_counter() - start_time:.2f} seconds."
+            f"Scraped {self.page_number - 1} pages in {perf_counter() - start_time:.2f} seconds."
         )
 
     async def start(self) -> None:
@@ -221,14 +225,13 @@ class BaseScraper:
         Returns:
             logging.Logger: Configured logger instance.
         """
-        save_folder = Path(self.save_path).parent
         logging.basicConfig(
             level=logging.INFO,
             encoding="utf-8",
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
             handlers=[
                 logging.StreamHandler(),
-                logging.FileHandler(f"{save_folder}/scrapers.log", mode="w"),
+                logging.FileHandler(self.log_path, mode="w"),
             ],
         )
         return logging.getLogger(self.__class__.__name__)

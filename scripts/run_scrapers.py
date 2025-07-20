@@ -13,6 +13,7 @@ if __name__ == "__main__":
     yahoo_scraper = YahooScraper(
         save_path=save_folder_path + "/scraped_yahoo_headlines.json",
         config_path=configs_folder_path + "/yahoo.yaml",
+        max_pages=100,
     )
     sky_scraper = SkyScraper(
         save_path=save_folder_path + "/scraped_sky_headlines.json",
@@ -53,15 +54,15 @@ if __name__ == "__main__":
 
     scrapers = [
         ("Yahoo", yahoo_scraper),
-        ("Sky", sky_scraper),
-        ("CBC", cbc_scraper),
-        ("ABC", abc_scraper),
-        ("Fox", fox_scraper),
-        ("NBC", nbc_scraper),
-        ("Irish Times", irish_times_scraper),
-        ("BusinessTech", businesstech_scraper),
-        ("RNZ", rnz_scraper),
-        ("Herald", herald_scraper),
+        # ("Sky", sky_scraper),
+        # ("CBC", cbc_scraper),
+        # ("ABC", abc_scraper),
+        # ("Fox", fox_scraper),
+        # ("NBC", nbc_scraper),
+        # ("Irish Times", irish_times_scraper),
+        # ("BusinessTech", businesstech_scraper),
+        # ("RNZ", rnz_scraper),
+        # ("Herald", herald_scraper),
     ]
 
     for name, scraper in scrapers:
