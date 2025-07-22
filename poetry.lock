@@ -86,18 +86,18 @@ tests-mypy = ["mypy (>=1.11.1) ; platform_python_implementation == \"CPython\" a
 
 [[package]]
 name = "awscli"
-version = "1.41.9"
+version = "1.41.11"
 description = "Universal Command Line Environment for AWS."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "awscli-1.41.9-py3-none-any.whl", hash = "sha256:ea5ab6a6d67113c034d9df474a1f99d8b62f21df2d35e866a52c11c8feeecf1c"},
-    {file = "awscli-1.41.9.tar.gz", hash = "sha256:b0f57ebbf8c1da0f5ac9e4501f5328a005bd6ea21bf03408f4caf171a40ae39d"},
+    {file = "awscli-1.41.11-py3-none-any.whl", hash = "sha256:e96387dad4b35a4e6bb20c6287cb3d701eb8438ecdf3edd081b19453435b8df6"},
+    {file = "awscli-1.41.11.tar.gz", hash = "sha256:22201a49e81e22c027fbd0eb40105a96344be371ffe79b4eec7ff2668c58641a"},
 ]
 
 [package.dependencies]
-botocore = "1.39.9"
+botocore = "1.39.11"
 colorama = ">=0.2.5,<0.4.7"
 docutils = ">=0.18.1,<=0.19"
 PyYAML = ">=3.10,<6.1"
@@ -151,18 +151,18 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "boto3"
-version = "1.39.9"
+version = "1.39.11"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "boto3-1.39.9-py3-none-any.whl", hash = "sha256:5bc85e9fdec4e21ef5ca2c22b4d51a3e32b53f3da36ce51f5a3ea4dbde07b132"},
-    {file = "boto3-1.39.9.tar.gz", hash = "sha256:e3d3a6b617e1575e7ec854c820a882ab2e189a0421e74dc0dca2c9e13d4370a5"},
+    {file = "boto3-1.39.11-py3-none-any.whl", hash = "sha256:af8f1dad35eceff7658fab43b39b0f55892b6e3dd12308733521cc24dd2c9a02"},
+    {file = "boto3-1.39.11.tar.gz", hash = "sha256:3027edf20642fe1d5f9dc50a420d0fe2733073ed6a9f0f047b60fe08c3682132"},
 ]
 
 [package.dependencies]
-botocore = ">=1.39.9,<1.40.0"
+botocore = ">=1.39.11,<1.40.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.13.0,<0.14.0"
 
@@ -171,14 +171,14 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.39.9"
+version = "1.39.11"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "botocore-1.39.9-py3-none-any.whl", hash = "sha256:a9691cbe03a3bc8b2720b3c36e5c5a2eecace6acd72bfb1107f00e75edaec4f3"},
-    {file = "botocore-1.39.9.tar.gz", hash = "sha256:02f141c2849e4589a79feea245ce4ecc478d48b7865572445af8aae3b041772d"},
+    {file = "botocore-1.39.11-py3-none-any.whl", hash = "sha256:1545352931a8a186f3e977b1e1a4542d7d434796e274c3c62efd0210b5ea76dc"},
+    {file = "botocore-1.39.11.tar.gz", hash = "sha256:953b12909d6799350e346ab038e55b6efe622c616f80aef74d7a6683ffdd972c"},
 ]
 
 [package.dependencies]
@@ -1113,37 +1113,37 @@ all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2
 
 [[package]]
 name = "ipykernel"
-version = "6.29.5"
+version = "6.30.0"
 description = "IPython Kernel for Jupyter"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "ipykernel-6.29.5-py3-none-any.whl", hash = "sha256:afdb66ba5aa354b09b91379bac28ae4afebbb30e8b39510c9690afb7a10421b5"},
-    {file = "ipykernel-6.29.5.tar.gz", hash = "sha256:f093a22c4a40f8828f8e330a9c297cb93dcab13bd9678ded6de8e5cf81c56215"},
+    {file = "ipykernel-6.30.0-py3-none-any.whl", hash = "sha256:fd2936e55c4a1c2ee8b1e5fa6a372b8eecc0ab1338750dee76f48fa5cca1301e"},
+    {file = "ipykernel-6.30.0.tar.gz", hash = "sha256:b7b808ddb2d261aae2df3a26ff3ff810046e6de3dfbc6f7de8c98ea0a6cb632c"},
 ]
 
 [package.dependencies]
-appnope = {version = "*", markers = "platform_system == \"Darwin\""}
+appnope = {version = ">=0.1.2", markers = "platform_system == \"Darwin\""}
 comm = ">=0.1.1"
 debugpy = ">=1.6.5"
 ipython = ">=7.23.1"
-jupyter-client = ">=6.1.12"
+jupyter-client = ">=8.0.0"
 jupyter-core = ">=4.12,<5.0.dev0 || >=5.1.dev0"
 matplotlib-inline = ">=0.1"
-nest-asyncio = "*"
-packaging = "*"
-psutil = "*"
-pyzmq = ">=24"
-tornado = ">=6.1"
+nest-asyncio = ">=1.4"
+packaging = ">=22"
+psutil = ">=5.7"
+pyzmq = ">=25"
+tornado = ">=6.2"
 traitlets = ">=5.4.0"
 
 [package.extras]
-cov = ["coverage[toml]", "curio", "matplotlib", "pytest-cov", "trio"]
-docs = ["myst-parser", "pydata-sphinx-theme", "sphinx", "sphinx-autodoc-typehints", "sphinxcontrib-github-alt", "sphinxcontrib-spelling", "trio"]
+cov = ["coverage[toml]", "matplotlib", "pytest-cov", "trio"]
+docs = ["intersphinx-registry", "myst-parser", "pydata-sphinx-theme", "sphinx", "sphinx-autodoc-typehints", "sphinxcontrib-github-alt", "sphinxcontrib-spelling", "trio"]
 pyqt5 = ["pyqt5"]
 pyside6 = ["pyside6"]
-test = ["flaky", "ipyparallel", "pre-commit", "pytest (>=7.0)", "pytest-asyncio (>=0.23.5)", "pytest-cov", "pytest-timeout"]
+test = ["flaky", "ipyparallel", "pre-commit", "pytest (>=7.0,<9)", "pytest-asyncio (>=0.23.5)", "pytest-cov", "pytest-timeout"]
 
 [[package]]
 name = "ipython"
@@ -2528,20 +2528,20 @@ type = ["mypy (>=1.14.1)"]
 
 [[package]]
 name = "playwright"
-version = "1.53.0"
+version = "1.54.0"
 description = "A high-level API to automate web browsers"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "playwright-1.53.0-py3-none-macosx_10_13_x86_64.whl", hash = "sha256:48a1a15ce810f0ffe512b6050de9871ea193b41dd3cc1bbed87b8431012419ba"},
-    {file = "playwright-1.53.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:a701f9498a5b87e3f929ec01cea3109fbde75821b19c7ba4bba54f6127b94f76"},
-    {file = "playwright-1.53.0-py3-none-macosx_11_0_universal2.whl", hash = "sha256:f765498341c4037b4c01e742ae32dd335622f249488ccd77ca32d301d7c82c61"},
-    {file = "playwright-1.53.0-py3-none-manylinux1_x86_64.whl", hash = "sha256:db19cb5b58f3b15cad3e2419f4910c053e889202fc202461ee183f1530d1db60"},
-    {file = "playwright-1.53.0-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:9276c9c935fc062f51f4f5107e56420afd6d9a524348dc437793dc2e34c742e3"},
-    {file = "playwright-1.53.0-py3-none-win32.whl", hash = "sha256:36eedec101724ff5a000cddab87dd9a72a39f9b3e65a687169c465484e667c06"},
-    {file = "playwright-1.53.0-py3-none-win_amd64.whl", hash = "sha256:d68975807a0fd997433537f1dcf2893cda95884a39dc23c6f591b8d5f691e9e8"},
-    {file = "playwright-1.53.0-py3-none-win_arm64.whl", hash = "sha256:fcfd481f76568d7b011571160e801b47034edd9e2383c43d83a5fb3f35c67885"},
+    {file = "playwright-1.54.0-py3-none-macosx_10_13_x86_64.whl", hash = "sha256:bf3b845af744370f1bd2286c2a9536f474cc8a88dc995b72ea9a5be714c9a77d"},
+    {file = "playwright-1.54.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:780928b3ca2077aea90414b37e54edd0c4bbb57d1aafc42f7aa0b3fd2c2fac02"},
+    {file = "playwright-1.54.0-py3-none-macosx_11_0_universal2.whl", hash = "sha256:81d0b6f28843b27f288cfe438af0a12a4851de57998009a519ea84cee6fbbfb9"},
+    {file = "playwright-1.54.0-py3-none-manylinux1_x86_64.whl", hash = "sha256:09919f45cc74c64afb5432646d7fef0d19fff50990c862cb8d9b0577093f40cc"},
+    {file = "playwright-1.54.0-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:13ae206c55737e8e3eae51fb385d61c0312eeef31535643bb6232741b41b6fdc"},
+    {file = "playwright-1.54.0-py3-none-win32.whl", hash = "sha256:0b108622ffb6906e28566f3f31721cd57dda637d7e41c430287804ac01911f56"},
+    {file = "playwright-1.54.0-py3-none-win_amd64.whl", hash = "sha256:9e5aee9ae5ab1fdd44cd64153313a2045b136fcbcfb2541cc0a3d909132671a2"},
+    {file = "playwright-1.54.0-py3-none-win_arm64.whl", hash = "sha256:a975815971f7b8dca505c441a4c56de1aeb56a211290f8cc214eeef5524e8d75"},
 ]
 
 [package.dependencies]
@@ -3891,14 +3891,14 @@ test = ["argcomplete (>=3.0.3)", "mypy (>=1.7.0)", "pre-commit", "pytest (>=7.0,
 
 [[package]]
 name = "transformers"
-version = "4.53.2"
+version = "4.53.3"
 description = "State-of-the-art Machine Learning for JAX, PyTorch and TensorFlow"
 optional = false
 python-versions = ">=3.9.0"
 groups = ["main"]
 files = [
-    {file = "transformers-4.53.2-py3-none-any.whl", hash = "sha256:db8f4819bb34f000029c73c3c557e7d06fc1b8e612ec142eecdae3947a9c78bf"},
-    {file = "transformers-4.53.2.tar.gz", hash = "sha256:6c3ed95edfb1cba71c4245758f1b4878c93bf8cde77d076307dacb2cbbd72be2"},
+    {file = "transformers-4.53.3-py3-none-any.whl", hash = "sha256:5aba81c92095806b6baf12df35d756cf23b66c356975fb2a7fa9e536138d7c75"},
+    {file = "transformers-4.53.3.tar.gz", hash = "sha256:b2eda1a261de79b78b97f7888fe2005fc0c3fabf5dad33d52cc02983f9f675d8"},
 ]
 
 [package.dependencies]
@@ -4061,14 +4061,14 @@ crypto-eth-addresses = ["eth-hash[pycryptodome] (>=0.7.0)"]
 
 [[package]]
 name = "virtualenv"
-version = "20.31.2"
+version = "20.32.0"
 description = "Virtual Python Environment builder"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "virtualenv-20.31.2-py3-none-any.whl", hash = "sha256:36efd0d9650ee985f0cad72065001e66d49a6f24eb44d98980f630686243cf11"},
-    {file = "virtualenv-20.31.2.tar.gz", hash = "sha256:e10c0a9d02835e592521be48b332b6caee6887f332c111aa79a09b9e79efc2af"},
+    {file = "virtualenv-20.32.0-py3-none-any.whl", hash = "sha256:2c310aecb62e5aa1b06103ed7c2977b81e042695de2697d01017ff0f1034af56"},
+    {file = "virtualenv-20.32.0.tar.gz", hash = "sha256:886bf75cadfdc964674e6e33eb74d787dff31ca314ceace03ca5810620f4ecf0"},
 ]
 
 [package.dependencies]
