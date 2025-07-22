@@ -115,12 +115,14 @@ class BaseScraper:
         self.page_number = 1
         self.queue = asyncio.Queue()
         self.visited = set()
+        self.seen = set()
         self.items = []
         self.failures = []
 
         self.page_number_lock = asyncio.Lock()
         self.write_lock = asyncio.Lock()
         self.visited_lock = asyncio.Lock()
+        self.seen_lock = asyncio.Lock()
 
         robots_txt_url = self.get_setting(param=robots_txt_url, key="robots_txt_url")
         self.robots_parser = self.setup_robots_txt_parser(robots_txt_url)
@@ -147,6 +149,8 @@ class BaseScraper:
             await page.close()
             # Begin dishing out tasks
             await self.queue.put(self.root)
+            async with self.seen_lock:
+                self.seen.add(self.root)
             async with asyncio.TaskGroup() as tg:
                 for _ in range(self.max_workers):
                     tg.create_task(self.process_queue())
@@ -289,7 +293,8 @@ class BaseScraper:
         for element in elements:
             elements_text.append(await element.inner_text())
         for href in hrefs:
-            await self.queue.put(href)
+            if not await self.already_seen(href):
+                await self.queue.put(href)
         async with self.write_lock:
             self.items.extend(elements_text)
 
@@ -307,6 +312,22 @@ class BaseScraper:
             visited = url in self.visited
         passed_robots = self.robots_parser.can_fetch("*", url)
         return valid_url and not visited and passed_robots
+
+    async def already_seen(self, href: str) -> bool:
+        """Check if a url has already been seen, i.e. added to the queue but not yet visited.
+
+        Args:
+            href (str): Scraped href to check.
+
+        Returns:
+            bool: True if already seen, False otherwise
+        """
+        candidate = self.normalise_url(href)
+        async with self.seen_lock:
+            in_seen = candidate in self.seen
+            if not in_seen:
+                self.seen.add(candidate)
+            return in_seen
 
     def normalise_url(self, url: str) -> str:
         """Normalise relative URLs to absolute URLs based on root.
