@@ -1,245 +1,209 @@
-from os import PathLike
 from headline_scrapers.base import BaseScraper
+from headline_scrapers.utils import clean_headlines
+from storage.storage import HeadlineStore
 from playwright.sync_api import TimeoutError
+import logging
 
 
-class YahooScraper(BaseScraper):
-    def __init__(
-        self,
-        locator_strings: list[str],
-        ignore_robots_txt: bool = False,
-        max_pages: int = 500,
-        save_path: PathLike = ".",
-        save_checkpoint: int | None = 10,
-        headless: bool = True,
-    ) -> None:
-        super().__init__(
-            "https://news.yahoo.com",
-            locator_strings,
-            ignore_robots_txt,
-            max_pages,
-            save_path,
-            save_checkpoint,
-            headless,
-        )
+class HeadlineScraper(BaseScraper):
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        logging.getLogger("botocore").setLevel(logging.WARNING)
+        self.headline_storage = HeadlineStore()
 
-    def deal_with_cookies(self) -> None:
-        self.page.locator("button", has_text="reject").click()
-        self.page.wait_for_load_state()
+    async def save(self) -> None:
+        """Saves the headline to DynamoDB storage.
+        The function is async in line with the parent version.
+        This is only to hold the write lock so that no other coroutines can write to the items list between putting and clearing.
+        """
+        self.logger.info("Saving current items")
+        async with self.write_lock:
+            items = [
+                {"headline": headline, "label": 0}
+                for headline in clean_headlines(self.items)
+            ]
+            self.headline_storage.put_items(items)
+            self.items.clear()
 
 
-class SkyScraper(BaseScraper):
-    def __init__(
-        self,
-        locator_strings: list[str],
-        ignore_robots_txt: bool = False,
-        max_pages: int = 500,
-        save_path: PathLike = ".",
-        save_checkpoint: int | None = 10,
-        headless: bool = True,
-    ) -> None:
-        super().__init__(
-            "https://news.sky.com",
-            locator_strings,
-            ignore_robots_txt,
-            max_pages,
-            save_path,
-            save_checkpoint,
-            headless,
-        )
+class YahooScraper(HeadlineScraper):
+    """Scraper for Yahoo News headlines."""
 
+    def __init__(self, **kwargs) -> None:
+        """Initialize YahooScraper with Yahoo News as the root URL.
 
-class CBCScraper(BaseScraper):
-    def __init__(
-        self,
-        locator_strings: list[str],
-        ignore_robots_txt: bool = False,
-        max_pages: int = 500,
-        save_path: PathLike = ".",
-        save_checkpoint: int | None = 10,
-        headless: bool = True,
-    ) -> None:
-        super().__init__(
-            "https://www.cbc.ca",
-            locator_strings,
-            ignore_robots_txt,
-            max_pages,
-            save_path,
-            save_checkpoint,
-            headless,
-        )
+        Args:
+            **kwargs: Additional keyword arguments for BaseScraper.
+        """
+        super().__init__(root="https://news.yahoo.com", **kwargs)
 
-    def deal_with_cookies(self) -> None:
+    async def deal_with_cookies(self, page) -> None:
+        """Handle Yahoo's cookie consent dialog by clicking the 'reject' button.
+
+        Args:
+            page: Playwright page object.
+        """
         try:
-            self.page.locator("button", has_text="manage").click()
-            self.page.wait_for_load_state()
-            self.page.get_by_role("button", name="Confirm choices").click()
-            self.page.wait_for_load_state()
+            await page.get_by_role("button", name="reject").click()
+            await page.wait_for_load_state()
         except TimeoutError:
-            print("Failed to find cookies management")
+            self.logger.error("Failed to find cookies management")
 
 
-class ABCScraper(BaseScraper):
-    def __init__(
-        self,
-        locator_strings: list[str],
-        ignore_robots_txt: bool = False,
-        max_pages: int = 500,
-        save_path: PathLike = ".",
-        save_checkpoint: int | None = 10,
-        headless: bool = True,
-    ) -> None:
-        super().__init__(
-            "https://www.abc.net.au",
-            locator_strings,
-            ignore_robots_txt,
-            max_pages,
-            save_path,
-            save_checkpoint,
-            headless,
-        )
+class SkyScraper(HeadlineScraper):
+    """Scraper for Sky News headlines."""
+
+    def __init__(self, **kwargs) -> None:
+        """Initialize SkyScraper with Sky News as the root URL.
+
+        Args:
+            **kwargs: Additional keyword arguments for BaseScraper.
+        """
+        super().__init__(root="https://news.sky.com", **kwargs)
 
 
-class FoxScraper(BaseScraper):
-    def __init__(
-        self,
-        locator_strings: list[str],
-        ignore_robots_txt: bool = False,
-        max_pages: int = 500,
-        save_path: PathLike = ".",
-        save_checkpoint: int | None = 10,
-        headless: bool = True,
-    ) -> None:
-        super().__init__(
-            "https://www.foxnews.com",
-            locator_strings,
-            ignore_robots_txt,
-            max_pages,
-            save_path,
-            save_checkpoint,
-            headless,
-        )
+class CBCScraper(HeadlineScraper):
+    """Scraper for CBC News headlines."""
+
+    def __init__(self, **kwargs) -> None:
+        """Initialize CBCScraper with CBC News as the root URL.
+
+        Args:
+            **kwargs: Additional keyword arguments for BaseScraper.
+        """
+        super().__init__(root="https://www.cbc.ca", **kwargs)
+
+    async def deal_with_cookies(self, page) -> None:
+        """Handle CBC's cookie consent dialog by clicking the appropriate buttons.
+
+        Args:
+            page: Playwright page object.
+        """
+        try:
+            await page.get_by_role("button", name="manage").click()
+            await page.wait_for_load_state()
+            await page.get_by_role("button", name="Confirm choices").click()
+            await page.wait_for_load_state()
+        except TimeoutError:
+            self.logger.error("Failed to find cookies management")
 
 
-class NBCScraper(BaseScraper):
-    def __init__(
-        self,
-        locator_strings: list[str],
-        ignore_robots_txt: bool = False,
-        max_pages: int = 500,
-        save_path: PathLike = ".",
-        save_checkpoint: int | None = 10,
-        headless: bool = True,
-    ) -> None:
-        super().__init__(
-            "https://www.nbcnews.com",
-            locator_strings,
-            ignore_robots_txt,
-            max_pages,
-            save_path,
-            save_checkpoint,
-            headless,
-        )
+class ABCScraper(HeadlineScraper):
+    """Scraper for ABC News headlines."""
 
-    def deal_with_cookies(self):
-        self.page.get_by_role("button", name="Continue").click()
-        self.page.wait_for_load_state()
+    def __init__(self, **kwargs) -> None:
+        """Initialize ABCScraper with ABC News as the root URL.
+
+        Args:
+            **kwargs: Additional keyword arguments for BaseScraper.
+        """
+        super().__init__(root="https://www.abc.net.au", **kwargs)
 
 
-class IrishTimesScraper(BaseScraper):
-    def __init__(
-        self,
-        locator_strings: list[str],
-        ignore_robots_txt: bool = False,
-        max_pages: int = 500,
-        save_path: PathLike = ".",
-        save_checkpoint: int | None = 10,
-        headless: bool = True,
-    ) -> None:
-        super().__init__(
-            "https://www.irishtimes.com",
-            locator_strings,
-            ignore_robots_txt,
-            max_pages,
-            save_path,
-            save_checkpoint,
-            headless,
-        )
+class FoxScraper(HeadlineScraper):
+    """Scraper for Fox News headlines."""
 
-    def deal_with_cookies(self):
-        self.page.get_by_role("button", name="manage").click()
-        self.page.wait_for_load_state()
-        self.page.get_by_role("button", name="reject").click()
-        self.page.wait_for_load_state()
+    def __init__(self, **kwargs) -> None:
+        """Initialize FoxScraper with Fox News as the root URL.
+
+        Args:
+            **kwargs: Additional keyword arguments for BaseScraper.
+        """
+        super().__init__(root="https://www.foxnews.com", **kwargs)
 
 
-class BusinessTechScraper(BaseScraper):
-    def __init__(
-        self,
-        locator_strings: list[str],
-        ignore_robots_txt: bool = False,
-        max_pages: int = 500,
-        save_path: PathLike = ".",
-        save_checkpoint: int | None = 10,
-        headless: bool = True,
-    ) -> None:
-        super().__init__(
-            "https://businesstech.co.za",
-            locator_strings,
-            ignore_robots_txt,
-            max_pages,
-            save_path,
-            save_checkpoint,
-            headless,
-        )
+class NBCScraper(HeadlineScraper):
+    """Scraper for NBC News headlines."""
+
+    def __init__(self, **kwargs) -> None:
+        """Initialize NBCScraper with NBC News as the root URL.
+
+        Args:
+            **kwargs: Additional keyword arguments for BaseScraper.
+        """
+        super().__init__(root="https://www.nbcnews.com", **kwargs)
+
+    async def deal_with_cookies(self, page):
+        """Handle NBC's cookie consent dialog by clicking the 'Continue' button.
+
+        Args:
+            page: Playwright page object.
+        """
+        try:
+            await page.get_by_role("button", name="Continue").click()
+            await page.wait_for_load_state()
+        except TimeoutError:
+            self.logger.error("Failed to find cookies management")
 
 
-class RNZScraper(BaseScraper):
-    def __init__(
-        self,
-        locator_strings: list[str],
-        ignore_robots_txt: bool = False,
-        max_pages: int = 500,
-        save_path: PathLike = ".",
-        save_checkpoint: int | None = 10,
-        headless: bool = True,
-    ) -> None:
-        super().__init__(
-            "https://www.rnz.co.nz",
-            locator_strings,
-            ignore_robots_txt,
-            max_pages,
-            save_path,
-            save_checkpoint,
-            headless,
-        )
+class IrishTimesScraper(HeadlineScraper):
+    """Scraper for Irish Times headlines."""
+
+    def __init__(self, **kwargs) -> None:
+        """Initialize IrishTimesScraper with Irish Times as the root URL.
+
+        Args:
+            **kwargs: Additional keyword arguments for BaseScraper.
+        """
+        super().__init__(root="https://www.irishtimes.com", **kwargs)
+
+    async def deal_with_cookies(self, page):
+        """Handle Irish Times' cookie consent dialog by clicking the 'manage' and 'reject' buttons.
+
+        Args:
+            page: Playwright page object.
+        """
+        await page.get_by_role("button", name="manage").click()
+        await page.wait_for_load_state()
+        await page.get_by_role("button", name="reject").click()
+        await page.wait_for_load_state()
 
 
-class HeraldScraper(BaseScraper):
-    def __init__(
-        self,
-        locator_strings: list[str],
-        ignore_robots_txt: bool = False,
-        max_pages: int = 500,
-        save_path: PathLike = ".",
-        save_checkpoint: int | None = 10,
-        headless: bool = True,
-    ) -> None:
-        super().__init__(
-            "https://www.heraldscotland.com",
-            locator_strings,
-            ignore_robots_txt,
-            max_pages,
-            save_path,
-            save_checkpoint,
-            headless,
-        )
+class BusinessTechScraper(HeadlineScraper):
+    """Scraper for BusinessTech headlines."""
 
-    # def deal_with_cookies(self):
-    #     try:
-    #         self.page.get_by_role("button", name="Reject All").click()
-    #         self.page.wait_for_load_state()
-    #         self.page.get_by_role("button", name="READ FOR FREE").click()
-    #         self.page.wait_for_load_state()
-    #     except TimeoutError:
-    #         print("Failed to find cookies management")
+    def __init__(self, **kwargs) -> None:
+        """Initialize BusinessTechScraper with BusinessTech as the root URL.
+
+        Args:
+            **kwargs: Additional keyword arguments for BaseScraper.
+        """
+        super().__init__(root="https://businesstech.co.za", **kwargs)
+
+
+class RNZScraper(HeadlineScraper):
+    """Scraper for RNZ headlines."""
+
+    def __init__(self, **kwargs) -> None:
+        """Initialize RNZScraper with RNZ as the root URL.
+
+        Args:
+            **kwargs: Additional keyword arguments for BaseScraper.
+        """
+        super().__init__(root="https://www.rnz.co.nz", **kwargs)
+
+
+class HeraldScraper(HeadlineScraper):
+    """Scraper for Herald Scotland headlines."""
+
+    def __init__(self, **kwargs) -> None:
+        """Initialize HeraldScraper with Herald Scotland as the root URL.
+
+        Args:
+            **kwargs: Additional keyword arguments for BaseScraper.
+        """
+        super().__init__(root="https://www.heraldscotland.com", **kwargs)
+
+    async def deal_with_cookies(self, page) -> None:
+        """Handle Herald Scotland's cookie consent dialog by clicking the 'Reject All' and 'READ FOR FREE' buttons.
+
+        Args:
+            page: Playwright page object.
+        """
+        try:
+            await page.get_by_role("button", name="Reject All").click()
+            await page.wait_for_load_state()
+            await page.get_by_role("button", name="READ FOR FREE").click()
+            await page.wait_for_load_state()
+        except TimeoutError:
+            self.logger.error("Failed to find cookies management")
