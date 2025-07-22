@@ -1,6 +1,8 @@
 import json
 import os
 import asyncio
+from headline_scrapers.utils import clean_headlines
+from storage.storage import HeadlineStorage
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
 from time import perf_counter
@@ -25,6 +27,12 @@ class HeadlinesGenerator:
         self._remaining = None
         self.max_workers = 20
 
+        self.headline_store = HeadlineStorage(
+            region_name="us-west-2",
+            endpoint_url="http://localhost:8000",
+            aws_access_key_id="dummy",
+            aws_secret_access_key="dummy",
+        )
         self._headlines_lock = asyncio.Lock()
         self._remaining_lock = asyncio.Lock()
 
@@ -67,6 +75,13 @@ class HeadlinesGenerator:
         async with asyncio.TaskGroup() as tg:
             for _ in range(workers):
                 tg.create_task(worker())
+
+    def save(self):
+        items = [
+            {"headline": headline, "label": 0}
+            for headline in clean_headlines(self._headlines)
+        ]
+        self.headline_store
 
     def generate_headlines(self, n: int) -> None:
         asyncio.run(self.__generate_headlines(n))

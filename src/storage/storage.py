@@ -1,17 +1,15 @@
 import boto3
-import os
-from typing import Optional
 from dotenv import load_dotenv
 
 
-class HeadlineStore:
-    """HeadlineStore provides an interface to a DynamoDB table for storing and retrieving news headlines and their labels.
+class HeadlineStorage:
+    """HeadlineStorage provides an interface to a DynamoDB table for storing and retrieving news headlines and their labels.
 
     This class manages the connection to DynamoDB, table creation, and basic CRUD operations for headline data.
     """
 
     def __init__(self, region_name: str = "eu-west-2", **kwargs):
-        """Initialize the HeadlineStore and connect to DynamoDB.
+        """Initialize the HeadlineStorage and connect to DynamoDB.
 
         Args:
             region_name (str): AWS region name. Defaults to "eu-west-2".
