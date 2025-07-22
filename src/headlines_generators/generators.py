@@ -27,12 +27,7 @@ class HeadlinesGenerator:
         self._remaining = None
         self.max_workers = 20
 
-        self.headline_store = HeadlineStorage(
-            region_name="us-west-2",
-            endpoint_url="http://localhost:8000",
-            aws_access_key_id="dummy",
-            aws_secret_access_key="dummy",
-        )
+        self.headline_storage = HeadlineStorage()
         self._headlines_lock = asyncio.Lock()
         self._remaining_lock = asyncio.Lock()
 
@@ -70,7 +65,8 @@ class HeadlinesGenerator:
                     self._headlines.update(headlines)
                     if len(self._headlines) >= n:
                         break
-                asyncio.sleep(0.5)
+                self.save()
+                await asyncio.sleep(0.5)
 
         async with asyncio.TaskGroup() as tg:
             for _ in range(workers):
@@ -78,19 +74,19 @@ class HeadlinesGenerator:
 
     def save(self):
         items = [
-            {"headline": headline, "label": 0}
+            {"headline": headline, "label": 1}
             for headline in clean_headlines(self._headlines)
         ]
-        self.headline_store
+        self.headline_storage.put_items(items)
 
     def generate_headlines(self, n: int) -> None:
         asyncio.run(self.__generate_headlines(n))
+        self.save()
 
 
 if __name__ == "__main__":
     hg = HeadlinesGenerator()
     start = perf_counter()
-    hg.generate_headlines(123)
+    hg.generate_headlines(100)
     print(len(hg.headlines))
-    print(hg.headlines)
     print(f"Done in {perf_counter() - start:.2f} seconds")
