@@ -45,16 +45,16 @@ if __name__ == "__main__":
     )
 
     scrapers = [
-        ("Yahoo", yahoo_scraper),
-        ("Sky", sky_scraper),
-        ("CBC", cbc_scraper),
-        ("ABC", abc_scraper),
-        ("Fox", fox_scraper),
-        ("NBC", nbc_scraper),
-        ("Irish Times", irish_times_scraper),
-        ("BusinessTech", businesstech_scraper),
+        # ("Yahoo", yahoo_scraper),
+        # ("Sky", sky_scraper),
+        # ("CBC", cbc_scraper),
+        # ("ABC", abc_scraper),
+        # ("Fox", fox_scraper),
+        # ("NBC", nbc_scraper),
+        # ("Irish Times", irish_times_scraper),
+        # ("BusinessTech", businesstech_scraper),
         ("RNZ", rnz_scraper),
-        ("Herald", herald_scraper),
+        # ("Herald", herald_scraper),
     ]
 
     for name, scraper in scrapers:
