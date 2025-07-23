@@ -1,6 +1,5 @@
 import boto3
 from dotenv import load_dotenv
-from time import sleep
 
 
 class HeadlineStorage:
