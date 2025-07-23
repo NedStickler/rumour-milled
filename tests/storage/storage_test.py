@@ -7,6 +7,6 @@ if __name__ == "__main__":
     print(len(hs.get_items()))
 
     hg = HeadlinesGenerator()
-    hg.generate_headlines(600)
+    hg.generate_headlines(9)
 
     print(len(hs.get_items()))
