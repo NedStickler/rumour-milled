@@ -65,7 +65,6 @@ class HeadlinesGenerator:
                     self._headlines.update(headlines)
                     if len(self._headlines) >= n:
                         break
-                self.save()
                 await asyncio.sleep(0.5)
 
         async with asyncio.TaskGroup() as tg:
@@ -82,11 +81,3 @@ class HeadlinesGenerator:
     def generate_headlines(self, n: int) -> None:
         asyncio.run(self.__generate_headlines(n))
         self.save()
-
-
-if __name__ == "__main__":
-    hg = HeadlinesGenerator()
-    start = perf_counter()
-    hg.generate_headlines(100)
-    print(len(hg.headlines))
-    print(f"Done in {perf_counter() - start:.2f} seconds")
