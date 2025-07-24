@@ -98,16 +98,19 @@ class HeadlinesGenerator:
                     if len(self._headlines) >= n:
                         break
                 await asyncio.sleep(0.5)
+                self.save(headlines)
 
         async with asyncio.TaskGroup() as tg:
             for _ in range(workers):
                 tg.create_task(worker())
 
-    def save(self):
+    def save(self, headlines: Optional[list[str]] = None):
         """Save the generated headlines to DynamoDB using HeadlineStorage."""
+        if headlines is None:
+            headlines = self._headlines
         items = [
             {"headline": headline, "label": 1}
-            for headline in clean_headlines(self._headlines)
+            for headline in clean_headlines(headlines)
         ]
         self.headline_storage.put_items(items)
 
@@ -118,4 +121,3 @@ class HeadlinesGenerator:
             n (int): Total number of headlines to generate.
         """
         asyncio.run(self.__generate_headlines(n))
-        self.save()
