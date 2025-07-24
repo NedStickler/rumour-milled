@@ -1,6 +1,6 @@
 from headline_scrapers.base import BaseScraper
-from headline_scrapers.utils import clean_headlines
-from storage.storage import HeadlineStorage
+from rumour_milled.utils import clean_headlines
+from storage.dynamodb import HeadlineStorage
 from playwright.sync_api import TimeoutError
 import logging
 

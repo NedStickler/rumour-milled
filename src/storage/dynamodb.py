@@ -1,5 +1,6 @@
 import boto3
 from dotenv import load_dotenv
+from time import sleep
 
 
 class HeadlineStorage:
@@ -71,6 +72,7 @@ class HeadlineStorage:
         with self.table.batch_writer() as batch:
             for item in items:
                 batch.put_item(Item=item)
+                sleep(0.075)
 
     def get_items(self):
         """Retrieve all items from the Headlines table as (headline, label) pairs.
@@ -78,9 +80,15 @@ class HeadlineStorage:
         Returns:
             list[tuple]: List of (headline, label) tuples.
         """
+
+        def parse_items(items):
+            for item in items:
+                headlines.append((item["headline"], item["label"]))
+
+        headlines = []
         scan = self.table.scan()
-        items = scan["Items"]
-        pairs = []
-        for item in items:
-            pairs.append((item["headline"], item["label"]))
-        return pairs
+        parse_items(scan["Items"])
+        while "LastEvaluatedKey" in scan:
+            scan = self.table.scan(ExclusiveStartKey=scan["LastEvaluatedKey"])
+            parse_items(scan["Items"])
+        return headlines
