@@ -13,5 +13,5 @@ if __name__ == "__main__":
     log_path = str(log_path) + "/generator.log"
 
     hs = HeadlinesGenerator(log_path=log_path)
-    n = 1_000
+    n = 2_300
     hs.generate_headlines(n)

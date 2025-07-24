@@ -101,7 +101,12 @@ class HeadlinesGenerator:
                 {"role": "user", "content": str(batch_size)},
             ],
         )
-        return json.loads(response.output_text).get("headlines", [])
+        try:
+            headlines = json.loads(response.output_text).get("headlines", [])
+        except json.decoder.JSONDecodeError:
+            self.logger.error("Headline batch failed JSON decode")
+            headlines = []
+        return headlines
 
     async def __generate_headlines(self, n: int) -> None:
         """Asynchronously generate n headlines using multiple concurrent workers.
