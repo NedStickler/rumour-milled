@@ -2,7 +2,7 @@ import json
 import os
 import asyncio
 from rumour_milled.utils import clean_headlines
-from storage.storage import HeadlineStorage
+from storage.dynamodb import HeadlineStorage
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
 from typing import Optional

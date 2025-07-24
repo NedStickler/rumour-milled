@@ -1,5 +1,5 @@
 from headlines_generators.generators import HeadlinesGenerator
-from storage.storage import HeadlineStorage
+from storage.dynamodb import HeadlineStorage
 
 
 if __name__ == "__main__":
