@@ -1,11 +1,18 @@
 import json
 import os
 import asyncio
+import logging
 from rumour_milled.utils import clean_headlines
 from storage.dynamodb import HeadlineStorage
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
 from typing import Optional
+from time import perf_counter
+
+
+# TODO:
+# - Allow save toggle
+# - Refactor save after every worker
 
 
 class HeadlinesGenerator:
@@ -14,7 +21,12 @@ class HeadlinesGenerator:
     This class manages asynchronous headline generation, batching, concurrency, and storage in DynamoDB.
     """
 
-    def __init__(self, max_workers: int = 20, api_key: Optional[str] = None):
+    def __init__(
+        self,
+        max_workers: int = 20,
+        log_path: os.PathLike = "generator.log",
+        api_key: Optional[str] = None,
+    ):
         """Initialize the HeadlinesGenerator, OpenAI client, and supporting locks and storage.
 
         Args:
@@ -25,6 +37,9 @@ class HeadlinesGenerator:
         if api_key is None:
             api_key = os.environ["OPENAI_API_KEY"]
         self.client = AsyncOpenAI(api_key=api_key)
+        self.log_path = log_path
+        self.max_workers = max_workers
+
         self.system_prompt = (
             "You are a news headline generator. Your task is to generate realistic news headlines based on the number provided by the user. "
             + "All responses must contain results resembling real news headlines. "
@@ -38,9 +53,7 @@ class HeadlinesGenerator:
         )
         self._headlines = set()
         self._remaining = None
-
-        self.max_workers = max_workers
-
+        self.logger = self.setup_logger()
         self.headline_storage = HeadlineStorage()
         self._headlines_lock = asyncio.Lock()
         self._remaining_lock = asyncio.Lock()
@@ -53,6 +66,24 @@ class HeadlinesGenerator:
             set: The set of generated headlines.
         """
         return self._headlines
+
+    def setup_logger(self) -> None:
+        """Set up a logger for the scraper, logging to both console and file.
+
+        Returns:
+            logging.Logger: Configured logger instance.
+        """
+        logging.getLogger("httpx").setLevel(logging.WARNING)
+        logging.basicConfig(
+            level=logging.INFO,
+            encoding="utf-8",
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            handlers=[
+                logging.StreamHandler(),
+                logging.FileHandler(self.log_path, mode="w"),
+            ],
+        )
+        return logging.getLogger(self.__class__.__name__)
 
     async def generate_headlines_batch(self, batch_size: int = 25) -> list[str]:
         """Generate a batch of news headlines using the OpenAI API.
@@ -81,13 +112,14 @@ class HeadlinesGenerator:
         ceil_div = lambda a, b: -(a // -b)
         workers = min(self.max_workers, ceil_div(n, 25))
         self._remaining = n
+        self.logger.info(f"Starting {workers} workers")
 
         async def worker():
-            print("Worker generating headlines!")
             while True:
                 async with self._remaining_lock:
                     if self._remaining <= 0:
-                        break
+                        return
+                    self.logger.info(f"{self._remaining} headlines remaining")
                     batch_size = min(self._remaining, 25)
                     self._remaining -= batch_size
 
@@ -96,7 +128,7 @@ class HeadlinesGenerator:
                 async with self._headlines_lock:
                     self._headlines.update(headlines)
                     if len(self._headlines) >= n:
-                        break
+                        return
                 await asyncio.sleep(0.5)
                 self.save(headlines)
 
@@ -112,6 +144,7 @@ class HeadlinesGenerator:
             {"headline": headline, "label": 1}
             for headline in clean_headlines(headlines)
         ]
+        self.logger.info("Saving generated headlines")
         self.headline_storage.put_items(items)
 
     def generate_headlines(self, n: int) -> None:
@@ -120,4 +153,8 @@ class HeadlinesGenerator:
         Args:
             n (int): Total number of headlines to generate.
         """
+        start_time = perf_counter()
         asyncio.run(self.__generate_headlines(n))
+        self.logger.info(
+            f"Generated {len(self._headlines)} headlines in {perf_counter() - start_time:.2f} seconds."
+        )

@@ -72,7 +72,7 @@ class HeadlineStorage:
         with self.table.batch_writer() as batch:
             for item in items:
                 batch.put_item(Item=item)
-                sleep(0.02)
+                sleep(0.075)
 
     def get_items(self):
         """Retrieve all items from the Headlines table as (headline, label) pairs.
