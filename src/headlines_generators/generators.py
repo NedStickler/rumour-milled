@@ -1,7 +1,7 @@
 import json
 import os
 import asyncio
-from headline_scrapers.utils import clean_headlines
+from rumour_milled.utils import clean_headlines
 from storage.storage import HeadlineStorage
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
