@@ -91,4 +91,5 @@ class HeadlineStorage:
         while "LastEvaluatedKey" in scan:
             scan = self.table.scan(ExclusiveStartKey=scan["LastEvaluatedKey"])
             parse_items(scan["Items"])
+            sleep(0.1)
         return headlines

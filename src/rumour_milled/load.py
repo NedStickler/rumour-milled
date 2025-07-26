@@ -1,9 +1,12 @@
 import joblib
 import pandas as pd
 from typing import Literal
+from storage.dynamodb import HeadlineStorage
 
 
-def load_data(label: Literal["combined", "true", "fake"] = "combined") -> pd.DataFrame:
+def load_external_data(
+    label: Literal["combined", "true", "fake"] = "combined"
+) -> pd.DataFrame:
     true = pd.read_csv("data/raw/True.csv")
     fake = pd.read_csv("data/raw/Fake.csv")
     true["fake_news"] = 0.0
@@ -14,6 +17,17 @@ def load_data(label: Literal["combined", "true", "fake"] = "combined") -> pd.Dat
         return true
     if label == "fake":
         return fake
+
+
+def load_headlines() -> tuple[list[str], list[int]]:
+    hs = HeadlineStorage()
+    items = hs.get_items()
+    headlines = []
+    labels = []
+    for headline, label in items:
+        headlines.append(headline)
+        labels.append(int(label))
+    return headlines, labels
 
 
 def load_model(
