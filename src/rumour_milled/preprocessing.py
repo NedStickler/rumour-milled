@@ -26,7 +26,7 @@ def tokenise_headlines(headlines: list[str], model: str = "bert-base-uncased") -
 def vectorise_tokens(
     tokens: dict,
     model: str = "bert-base-uncased",
-    batch_size: Optional[int] = None,
+    batch_size: Optional[int] = 16,
 ) -> torch.Tensor:
     """Vectorise tokenised headlines.
 
@@ -54,7 +54,8 @@ def vectorise_tokens(
                 k: v[i : i + batch_size].to(device) for k, v in tokens.items()
             }
             vector = vectoriser(**batch_tokens)
-            vectors.append(vector.last_hidden_state[:, 0, :])
+            cls_vector = vector.last_hidden_state[:, 0, :].cpu()
+            vectors.append(cls_vector)
     return torch.cat(vectors, dim=0)
 
 
