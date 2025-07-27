@@ -8,19 +8,36 @@ from nltk.stem import WordNetLemmatizer
 from typing import Optional
 
 
-def tokenise_headlines(
-    headlines: list[str], model: str = "bert-base-uncased"
-) -> list[dict]:
+def tokenise_headlines(headlines: list[str], model: str = "bert-base-uncased") -> dict:
+    """Tokenise raw text headlines.
+
+    Args:
+        headlines (list[str]): Raw headlines to be tokenised
+        model (str, optional): Model to use for tokenisation. Defaults to "bert-base-uncased".
+
+    Returns:
+        dict: _description_
+    """
     tokeniser = AutoTokenizer.from_pretrained(model)
     tokens = tokeniser(headlines, padding=True, truncation=True, return_tensors="pt")
     return tokens
 
 
 def vectorise_tokens(
-    tokens: list[dict],
+    tokens: dict,
     model: str = "bert-base-uncased",
     batch_size: Optional[int] = None,
 ) -> torch.Tensor:
+    """Vectorise tokenised headlines.
+
+    Args:
+        tokens (dict): Tokenised headlines to be vectorised.
+        model (str, optional): Model to use for vectorisation. Defaults to "bert-base-uncased".
+        batch_size (Optional[int], optional): Batch size for vectorisation to avoid GPU memory issues. Defaults to None.
+
+    Returns:
+        torch.Tensor: Processed headlines as a len(headlines) x 768 tensor.
+    """
     inputs_len = len(tokens["input_ids"])
     if batch_size is None:
         batch_size = inputs_len
@@ -45,7 +62,17 @@ def tokenise_and_vectorise(
     headlines: list[str],
     model: str = "bert-base-uncased",
     batch_size: Optional[int] = None,
-):
+) -> torch.Tensor:
+    """Tokenise and then vectorise headlines in order.
+
+    Args:
+        headlines (list[str]): Raw headlines to be processed.
+        model (str, optional): Model to use for tokenisation and vectorisation. Defaults to "bert-base-uncased".
+        batch_size (Optional[int], optional): Batch size for vectorisation to avoid GPU memory issues. Defaults to None.
+
+    Returns:
+        torch.Tensor: Processed headlines as a len(headlines) x 768 tensor.
+    """
     tokens = tokenise_headlines(headlines, model)
     X = vectorise_tokens(tokens, model, batch_size)
     return X
