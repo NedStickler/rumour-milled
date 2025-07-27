@@ -21,16 +21,22 @@ def vectorise_tokens(
     model: str = "bert-base-uncased",
     batch_size: Optional[int] = None,
 ) -> torch.Tensor:
+    inputs_len = len(tokens["input_ids"])
     if batch_size is None:
-        batch_size = len(tokens)
+        batch_size = inputs_len
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     vectoriser = AutoModel.from_pretrained(model).to(device)
     vectors = []
+
     with torch.no_grad():
-        for i in range(0, len(tokens), batch_size):
-            print(f"Vectorising batch {i}")
-            batch_tokens = tokens[i : i + batch_size].to(device)
-            vector = vectoriser(**{k: v.to(device) for k, v in batch_tokens.items()})
+        for i in range(0, inputs_len, batch_size):
+            if i + batch_size > inputs_len:
+                batch_size = inputs_len - i
+            print(f"Vectorising {i+batch_size}/{inputs_len}")
+            batch_tokens = {
+                k: v[i : i + batch_size].to(device) for k, v in tokens.items()
+            }
+            vector = vectoriser(**batch_tokens)
             vectors.append(vector.last_hidden_state[:, 0, :])
     return torch.cat(vectors, dim=0)
 
@@ -41,8 +47,8 @@ def tokenise_and_vectorise(
     batch_size: Optional[int] = None,
 ):
     tokens = tokenise_headlines(headlines, model)
-    vector = vectorise_tokens(tokens, model, batch_size)
-    return vector
+    X = vectorise_tokens(tokens, model, batch_size)
+    return X
 
 
 def nltk_downloads() -> None:
