@@ -1,7 +1,7 @@
 import joblib
 import pandas as pd
 from typing import Literal
-from storage.dynamodb import HeadlineStorage
+from rumour_milled.storage.dynamodb import HeadlineStorage
 
 
 def load_external_data(

@@ -2,8 +2,8 @@ import json
 import os
 import asyncio
 import logging
-from rumour_milled.utils import clean_headlines
-from storage.dynamodb import HeadlineStorage
+from rumour_milled.utils.utils import clean_headlines
+from rumour_milled.storage.dynamodb import HeadlineStorage
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
 from typing import Optional

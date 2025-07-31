@@ -5,7 +5,7 @@ from playwright.async_api import async_playwright
 from os import PathLike
 from pathlib import Path
 from validators.url import url as validate_url
-from headline_scrapers.parsers import RobotsTxtParser
+from rumour_milled.scraping.parsers import RobotsTxtParser
 from typing import Optional
 from time import perf_counter
 

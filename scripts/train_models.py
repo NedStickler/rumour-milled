@@ -3,10 +3,10 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from xgboost import XGBClassifier
-from rumour_milled.train import train_model
-from rumour_milled.load import load_data
-from rumour_milled.save import save_model
-from rumour_milled.encoders import SentenceTransformerVectoriser
+from rumour_milled.ml.train import train_model
+from rumour_milled.ml.load import load_data
+from rumour_milled.ml.save import save_model
+from rumour_milled.ml.encoders import SentenceTransformerVectoriser
 from tqdm import tqdm
 
 
