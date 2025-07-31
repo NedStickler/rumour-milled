@@ -19,6 +19,8 @@ def train_model(
     learning_rate: float = 0.001,
     epochs: int = 10,
 ):
+    if device is None:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     dataset = TensorDataset(X, y)
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
     model = model(**model_kwargs).to(device)

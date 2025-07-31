@@ -1,4 +1,4 @@
-from headline_scrapers.scrapers import *
+from rumour_milled.scraping.scrapers import *
 from datetime import datetime
 from pathlib import Path
 
@@ -8,7 +8,7 @@ if __name__ == "__main__":
     log_path = Path(f"data/raw/headlines/scraped/{datetime_now}")
     log_path.mkdir(parents=True, exist_ok=True)
     log_path = str(log_path) + "/scrapers.log"
-    configs_folder_path = "src/headline_scrapers/configs"
+    configs_folder_path = "configs"
 
     yahoo_scraper = YahooScraper(
         log_path=log_path, config_path=configs_folder_path + "/yahoo.yaml"

@@ -1,4 +1,4 @@
-from headlines_generators.generators import HeadlinesGenerator
+from rumour_milled.generation.generators import HeadlinesGenerator
 from dotenv import load_dotenv
 from pathlib import Path
 from datetime import datetime
