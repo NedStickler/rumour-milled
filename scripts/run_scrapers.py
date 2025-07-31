@@ -11,7 +11,10 @@ if __name__ == "__main__":
     configs_folder_path = "configs"
 
     yahoo_scraper = YahooScraper(
-        log_path=log_path, config_path=configs_folder_path + "/yahoo.yaml"
+        log_path=log_path,
+        config_path=configs_folder_path + "/yahoo.yaml",
+        max_pages=20,
+        save_checkpoint=10,
     )
     sky_scraper = SkyScraper(
         log_path=log_path, config_path=configs_folder_path + "/sky.yaml"
@@ -46,15 +49,15 @@ if __name__ == "__main__":
 
     scrapers = [
         ("Yahoo", yahoo_scraper),
-        ("Sky", sky_scraper),
-        ("CBC", cbc_scraper),
-        ("ABC", abc_scraper),
-        ("Fox", fox_scraper),
-        ("NBC", nbc_scraper),
-        ("Irish Times", irish_times_scraper),
-        ("BusinessTech", businesstech_scraper),
-        ("RNZ", rnz_scraper),
-        ("Herald", herald_scraper),
+        # ("Sky", sky_scraper),
+        # ("CBC", cbc_scraper),
+        # ("ABC", abc_scraper),
+        # ("Fox", fox_scraper),
+        # ("NBC", nbc_scraper),
+        # ("Irish Times", irish_times_scraper),
+        # ("BusinessTech", businesstech_scraper),
+        # ("RNZ", rnz_scraper),
+        # ("Herald", herald_scraper),
     ]
 
     for name, scraper in scrapers:
