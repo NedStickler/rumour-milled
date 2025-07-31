@@ -1,36 +1,14 @@
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.feature_extraction.text import TfidfVectorizer
-from xgboost import XGBClassifier
-from rumour_milled.ml.train import train_model
-from rumour_milled.ml.load import load_data
-from rumour_milled.ml.save import save_model
-from rumour_milled.ml.encoders import SentenceTransformerVectoriser
-from tqdm import tqdm
+from rumour_milled.ml.models.gan import HeadlinesGenerator, HeadlinesDiscriminator
+from rumour_milled.ml.load import load_headlines
+from rumour_milled.ml.preprocess import tokenise_and_vectorise
+import torch
 
 
 if __name__ == "__main__":
-    data = load_data()
-    X_train, X_test, y_train, y_test = train_test_split(
-        data["title"], data["fake_news"], test_size=0.2, random_state=42
-    )
-
-    models = [
-        LogisticRegression,
-        RandomForestClassifier,
-        GradientBoostingClassifier,
-        XGBClassifier,
+    headlines, labels = load_headlines()
+    real_headlines = [
+        headline for headline, label in zip(headlines, labels) if label == 1
     ]
-    encoders = [TfidfVectorizer, SentenceTransformerVectoriser]
-
-    for model in tqdm(
-        models, bar_format="{l_bar}{bar:10}{r_bar}", desc="Training models"
-    ):
-        model_name = model.__name__.lower()
-        for encoder in encoders:
-            encoder_name = encoder.__name__.lower()
-            save_model(
-                train_model(X_train, y_train, model, encoder),
-                f"models/{model_name}_{encoder_name}.pkl",
-            )
+    real_headlines_subset = real_headlines[:512]
+    X = tokenise_and_vectorise(real_headlines_subset, batch_size=128)
+    y = torch.zeros_like(X, dtype=torch.float).unsqueeze(1)
