@@ -11,7 +11,7 @@ RUN pip install --no-cache-dir playwright python-dotenv boto3 requests validator
 # 4. Copy source and scripts
 COPY src/rumour_milled/ src/rumour_milled/
 COPY scripts/ scripts/
-COPY configs/ configs/
+COPY configs/scraping/ configs/scraping/
 
 # 5. Add to Python path so imports work
 ENV PYTHONPATH=/app/src

@@ -8,13 +8,11 @@ if __name__ == "__main__":
     log_path = Path(f"data/raw/headlines/scraped/{datetime_now}")
     log_path.mkdir(parents=True, exist_ok=True)
     log_path = str(log_path) + "/scrapers.log"
-    configs_folder_path = "configs"
+    configs_folder_path = "configs/scraping"
 
     yahoo_scraper = YahooScraper(
         log_path=log_path,
         config_path=configs_folder_path + "/yahoo.yaml",
-        max_pages=20,
-        save_checkpoint=10,
     )
     sky_scraper = SkyScraper(
         log_path=log_path, config_path=configs_folder_path + "/sky.yaml"
