@@ -11,7 +11,7 @@ from time import perf_counter
 
 
 # TODO:
-# - Move logs into S3
+# - Fix page_number logic so that scraper runs until exactly n pages are scraped
 
 
 class BaseScraper:
