@@ -196,3 +196,4 @@ cython_debug/
 el_plan.md
 data/
 models/
+.VSCodeCounter/

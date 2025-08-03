@@ -1,12 +1,12 @@
-root: "https://www.heraldscotland.com"
+root: https://news.sky.com
 locator_strings:
-- '[class="headline"]'
-robots_txt_url: "https://www.heraldscotland.com/robots.txt"
+- '[class*="headline"]'
+robots_txt_url: "https://news.sky.com/robots.txt"
 ignore_robots_txt: false
 max_pages: 500
-max_workers: 20
-save_path: "scraped_herald_headlines.json"
+max_workers: 5
+save_path: "scraped_sky_headlines.json"
 log_path: "scraper.log"
-save_checkpoint: 20
+save_checkpoint: 50
 headless: true
 user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"

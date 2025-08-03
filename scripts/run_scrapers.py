@@ -8,17 +8,18 @@ if __name__ == "__main__":
     log_path = Path(f"data/raw/headlines/scraped/{datetime_now}")
     log_path.mkdir(parents=True, exist_ok=True)
     log_path = str(log_path) + "/scrapers.log"
-    configs_folder_path = "configs"
+    configs_folder_path = "configs/scraping"
 
     yahoo_scraper = YahooScraper(
-        log_path=log_path, config_path=configs_folder_path + "/yahoo.yaml"
+        log_path=log_path,
+        config_path=configs_folder_path + "/yahoo.yaml",
     )
     sky_scraper = SkyScraper(
         log_path=log_path, config_path=configs_folder_path + "/sky.yaml"
     )
-    cbc_scraper = CBCScraper(
-        log_path=log_path, config_path=configs_folder_path + "/cbc.yaml"
-    )
+    # cbc_scraper = CBCScraper(
+    #     log_path=log_path, config_path=configs_folder_path + "/cbc.yaml"
+    # )
     abc_scraper = ABCScraper(
         log_path=log_path, config_path=configs_folder_path + "/abc.yaml"
     )
@@ -47,7 +48,7 @@ if __name__ == "__main__":
     scrapers = [
         ("Yahoo", yahoo_scraper),
         ("Sky", sky_scraper),
-        ("CBC", cbc_scraper),
+        # ("CBC", cbc_scraper),
         ("ABC", abc_scraper),
         ("Fox", fox_scraper),
         ("NBC", nbc_scraper),
