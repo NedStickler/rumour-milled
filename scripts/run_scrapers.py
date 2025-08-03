@@ -17,9 +17,9 @@ if __name__ == "__main__":
     sky_scraper = SkyScraper(
         log_path=log_path, config_path=configs_folder_path + "/sky.yaml"
     )
-    cbc_scraper = CBCScraper(
-        log_path=log_path, config_path=configs_folder_path + "/cbc.yaml"
-    )
+    # cbc_scraper = CBCScraper(
+    #     log_path=log_path, config_path=configs_folder_path + "/cbc.yaml"
+    # )
     abc_scraper = ABCScraper(
         log_path=log_path, config_path=configs_folder_path + "/abc.yaml"
     )
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     scrapers = [
         ("Yahoo", yahoo_scraper),
         ("Sky", sky_scraper),
-        ("CBC", cbc_scraper),
+        # ("CBC", cbc_scraper),
         ("ABC", abc_scraper),
         ("Fox", fox_scraper),
         ("NBC", nbc_scraper),
