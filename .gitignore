@@ -196,4 +196,5 @@ cython_debug/
 el_plan.md
 data/
 models/
+!src/rumour_milled/ml/models/
 .VSCodeCounter/
