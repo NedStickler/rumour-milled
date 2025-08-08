@@ -1,6 +1,7 @@
 import joblib
 import pandas as pd
-from typing import Literal
+import boto3
+from typing import Literal, Optional
 from rumour_milled.storage.dynamodb import HeadlineStorage
 
 
@@ -19,9 +20,11 @@ def load_external_data(
         return fake
 
 
-def load_headlines() -> tuple[list[str], list[int]]:
+def load_headlines(
+    filter_expression, limit: Optional[int] = None
+) -> tuple[list[str], list[int]]:
     hs = HeadlineStorage()
-    items = hs.get_items()
+    items = hs.get_items(filter_expression=filter_expression, limit=limit)
     headlines = []
     labels = []
     for headline, label in items:
