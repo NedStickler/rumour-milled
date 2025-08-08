@@ -1,6 +1,7 @@
 import boto3
 from dotenv import load_dotenv
 from time import sleep
+from typing import Optional
 
 
 class HeadlineStorage:
@@ -74,22 +75,47 @@ class HeadlineStorage:
                 batch.put_item(Item=item)
                 sleep(0.075)
 
-    def get_items(self):
-        """Retrieve all items from the Headlines table as (headline, label) pairs.
+    def __parse_and_append(self, lst, items) -> list:
+        """Parse DynamoDB items and append to a list."""
+        for item in items:
+            lst.append((item["headline"], item["label"]))
+
+    def get_all_items(self) -> list[tuple[str, int]]:
+        """Retrieve all items from the Headlines table.
 
         Returns:
-            list[tuple]: List of (headline, label) tuples.
+            list[tuple[str, int]]: List of tuples containing headlines and their labels.
         """
-
-        def parse_items(items):
-            for item in items:
-                headlines.append((item["headline"], item["label"]))
-
         headlines = []
         scan = self.table.scan()
-        parse_items(scan["Items"])
+        self.__parse_and_append(headlines, scan["Items"])
         while "LastEvaluatedKey" in scan:
             scan = self.table.scan(ExclusiveStartKey=scan["LastEvaluatedKey"])
-            parse_items(scan["Items"])
+            self.__parse_and_append(headlines, scan["Items"])
             sleep(0.1)
         return headlines
+
+    def get_filtered_items(
+        self, filter_expression, max_items, page_limit=512
+    ) -> list[tuple[str, int]]:
+        """Retrieve items from the Headlines table based on a filter expression.
+
+        Args:
+            filter_expression (_type_): Filter expression to apply.
+            max_items (int): Maximum number of items to retrieve.
+            page_limit (int, optional): Max items returned for each DynamoDB page. Defaults to 512.
+
+        Returns:
+            list[tuple[str, int]]: List of tuples containing headlines and their labels.
+        """
+        headlines = []
+        scan = self.table.scan(FilterExpression=filter_expression, Limit=page_limit)
+        self.__parse_and_append(headlines, scan["Items"])
+        while len(headlines) < max_items and "LastEvaluatedKey" in scan:
+            scan = self.table.scan(
+                ExclusiveStartKey=scan["LastEvaluatedKey"],
+                FilterExpression=filter_expression,
+                Limit=page_limit,
+            )
+            self.__parse_and_append(headlines, scan["Items"])
+        return headlines[:max_items]
