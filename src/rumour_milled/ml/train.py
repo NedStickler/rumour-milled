@@ -1,19 +1,23 @@
 import torch
 
 
+# TODO:
+# - Model saving with S3
+
+
 class Trainer:
     def __init__(
         self,
         model,
         loss_fn,
         optimiser,
-        scheduler,
-        device,
+        scheduler=None,
+        device=None,
     ):
         self.device = device or torch.device(
             "cuda" if torch.cuda.is_available() else "cpu"
         )
-        self.model = model.to(device)
+        self.model = model.to(self.device)
         self.loss_fn = loss_fn
         self.optimiser = optimiser
         self.scheduler = scheduler
