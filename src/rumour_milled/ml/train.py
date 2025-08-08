@@ -1,9 +1,4 @@
 import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.nn.modules.loss import _Loss
-from torch.utils.data import TensorDataset, DataLoader
-from typing import Optional
 
 
 class Trainer:
@@ -12,6 +7,7 @@ class Trainer:
         model,
         loss_fn,
         optimiser,
+        scheduler,
         device,
     ):
         self.device = device or torch.device(
@@ -20,8 +16,9 @@ class Trainer:
         self.model = model.to(device)
         self.loss_fn = loss_fn
         self.optimiser = optimiser
+        self.scheduler = scheduler
 
-    def train_step(self, X, y):
+    def train_batch(self, X, y):
         X, y = X.to(self.device), y.to(self.device)
         self.optimiser.zero_grad()
         out = self.model(X)
@@ -30,22 +27,25 @@ class Trainer:
         self.optimiser.step()
         return loss.item()
 
-    def epoch_step(self, train_loader):
+    def train_epoch(self, train_loader):
         self.model.train()
         epoch_loss = 0
         for X, y in train_loader:
-            loss = self.train_step(X, y)
+            loss = self.train_batch(X, y)
             epoch_loss += loss
         return epoch_loss / len(train_loader)
 
     def train(self, train_loader, validation_loader, epochs):
         for epoch in range(epochs):
-            train_loss = self.epoch_step(train_loader)
+            train_loss = self.train_epoch(train_loader)
             output_str = f"Epoch {epoch}/{epochs} | train_loss: {train_loss}"
             if validation_loader:
                 val_loss = self.evaluate(validation_loader)
                 output_str += f" | val_loss: {val_loss}"
             print(output_str)
+
+            if self.scheduler:
+                self.scheduler.step()
 
     def evaluate(self, validation_loader):
         self.model.eval()
