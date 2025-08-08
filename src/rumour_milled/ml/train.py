@@ -36,16 +36,18 @@ class Trainer:
         return epoch_loss / len(train_loader)
 
     def train(self, train_loader, validation_loader, epochs):
-        for epoch in range(epochs):
+        for epoch in range(1, epochs + 1):
             train_loss = self.train_epoch(train_loader)
             output_str = f"Epoch {epoch}/{epochs} | train_loss: {train_loss}"
+
             if validation_loader:
                 val_loss = self.evaluate(validation_loader)
                 output_str += f" | val_loss: {val_loss}"
-            print(output_str)
-
             if self.scheduler:
                 self.scheduler.step()
+                output_str += f" | lr: {self.scheduler.get_last_lr()[0]}"
+
+            print(output_str)
 
     def evaluate(self, validation_loader):
         self.model.eval()
