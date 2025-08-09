@@ -19,10 +19,9 @@ if __name__ == "__main__":
     )
 
     headlines_subset = real_headlines + fake_headlines
-    ones = torch.ones((256, 1))
-    zeroes = torch.zeros((256, 1))
     X = tokenise_and_vectorise(headlines_subset, batch_size=128)
-    y = torch.cat([torch.zeros((256, 1)), torch.ones((256, 1))])
+    n = X.shape[0] / 2
+    y = torch.cat([torch.zeros((n, 1)), torch.ones((n, 1))])
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y.squeeze().numpy()
