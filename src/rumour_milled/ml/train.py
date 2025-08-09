@@ -22,6 +22,10 @@ class Trainer:
         self.optimiser = optimiser
         self.scheduler = scheduler
 
+    @property
+    def model(self):
+        return self.model
+
     def train_batch(self, X, y):
         X, y = X.to(self.device), y.to(self.device)
         self.optimiser.zero_grad()

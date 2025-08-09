@@ -6,8 +6,7 @@ from datetime import datetime, timezone
 import uuid
 import argparse
 import torch
-import boto3
-import io
+import os
 
 
 def main():
@@ -39,15 +38,13 @@ def main():
         stratify=y.squeeze().numpy(),
     )
 
-    buffer = io.BytesIO()
+    output_dir = "/opt/ml/processing/train"
+    os.makedirs(output_dir, exist_ok=True)
     torch.save(
         {"X_train": X_train, "X_test": X_test, "y_train": y_train, "y_test": y_test},
-        buffer,
+        os.path.join(output_dir, "data.pt"),
     )
-    buffer.seek(0)
-    s3 = boto3.client("s3")
-    s3.put_object(
-        Bucket="rumour-milled",
-        Key=f"runs/{run_id}/input/data.pt",
-        Body=buffer.getvalue(),
-    )
+
+
+if __name__ == "__main__":
+    main()
