@@ -1,1 +1,3 @@
-torch==2.7.1
+/opt/ml/code/rumour_milled-0.1.0-py3-none-any.whl
+boto3==1.39.11
+scikit_learn==1.7.1
