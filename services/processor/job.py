@@ -2,8 +2,6 @@ from rumour_milled.ml.load import load_headlines
 from rumour_milled.ml.preprocess import tokenise_and_vectorise
 from boto3.dynamodb.conditions import Attr
 from sklearn.model_selection import train_test_split
-from datetime import datetime, timezone
-import uuid
 import argparse
 import torch
 import os
