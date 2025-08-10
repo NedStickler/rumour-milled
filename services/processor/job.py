@@ -10,8 +10,6 @@ import os
 
 
 def main():
-    run_id = f"{datetime.now(timezone.utc).strftime('%Y-%m-%dT%H-%M-%SZ')}-{uuid.uuid4().hex[:6]}"
-
     ap = argparse.ArgumentParser()
     ap.add_argument("--fake-size", type=int, default=256)
     ap.add_argument("--real-size", type=int, default=256)
