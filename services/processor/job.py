@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from rumour_milled.ml.load import load_headlines
 from rumour_milled.ml.preprocess import tokenise_and_vectorise
 from boto3.dynamodb.conditions import Attr
@@ -5,6 +6,11 @@ from sklearn.model_selection import train_test_split
 import argparse
 import torch
 import os
+import sys, subprocess, pathlib
+
+req = pathlib.Path(__file__).with_name("requirements.txt")
+if req.exists():
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", str(req)])
 
 
 def main():

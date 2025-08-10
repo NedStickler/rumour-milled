@@ -38,7 +38,7 @@ def create_pipeline():
         framework_version="2.3",
         py_version="py311",
         role=role,
-        instance_type="ml.g5.xlarge",
+        instance_type="ml.m5.xlarge",
         instance_count=1,
     )
 
@@ -65,6 +65,7 @@ def create_pipeline():
         instance_type="ml.m5.xlarge",
         instance_count=1,
         hyperparameters={"epochs": epochs, "lr": lr, "batch_size": batch_size},
+        dependencies=["services/trainer/requirements.txt"],
         output_path=output_uri,
     )
 
