@@ -9,6 +9,8 @@ from sagemaker.pytorch.processing import PyTorchProcessor
 from sagemaker.workflow.steps import ProcessingStep, TrainingStep
 from sagemaker.processing import ProcessingOutput
 from sagemaker.pytorch import PyTorch
+from sagemaker.workflow.pipeline import Pipeline
+from sagemaker.inputs import TrainingInput
 from datetime import datetime, timezone
 import uuid
 
@@ -65,6 +67,18 @@ def create_pipeline():
     )
 
     step_train = TrainingStep(
+        name="TrainModel",
+        estimator=estimator,
+        inputs={
+            "data": TrainingInput(
+                step_process.properties.ProcessingOutputConfig.Outputs[
+                    "input"
+                ].S3Output.S3Uri
+            )
+        },
+    )
+
+    return Pipeline(
         name="RumourMilledPipeline",
         parameters=[run_id, bucket, table, epochs, lr, batch_size],
         steps=[step_process, step_train],
