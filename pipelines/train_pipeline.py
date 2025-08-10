@@ -10,6 +10,7 @@ from sagemaker.workflow.steps import ProcessingStep, TrainingStep
 from sagemaker.processing import ProcessingOutput
 from sagemaker.pytorch import PyTorch
 from sagemaker.workflow.pipeline import Pipeline
+from sagemaker.workflow.pipeline_context import PipelineSession
 from sagemaker.inputs import TrainingInput
 from datetime import datetime, timezone
 from dotenv import load_dotenv
@@ -19,7 +20,7 @@ import os
 
 def create_pipeline():
     load_dotenv()
-    sess = sagemaker.Session()
+    sess = PipelineSession()
     role = os.environ.get("SM_EXEC_ROLE")
 
     run_id = f"{datetime.now(timezone.utc).strftime('%Y-%m-%dT%H-%M-%SZ')}-{uuid.uuid4().hex[:6]}"
@@ -42,12 +43,11 @@ def create_pipeline():
         instance_count=1,
     )
 
-    step_process = ProcessingStep(
-        name="ProcessHeadlines",
-        processor=processor,
-        code="services/processor/job.py",
-        job_arguments=["--fake-size", "128", "--real-size", "128"],
-        inputs=[],
+    step_process_args = processor.run(
+        code="job.py",
+        source_dir="services/processor/",
+        arguments=["--fake-size", "128", "--real-size", "128"],
+        # command=["python3", "-u"],
         outputs=[
             ProcessingOutput(
                 output_name="input",
@@ -56,6 +56,8 @@ def create_pipeline():
             )
         ],
     )
+
+    step_process = ProcessingStep(name="ProcessHeadlines", step_args=step_process_args)
 
     estimator = PyTorch(
         entry_point="services/trainer/job.py",
