@@ -5,7 +5,8 @@ FROM mcr.microsoft.com/playwright/python:v1.54.0-noble
 WORKDIR /app
 
 # 3. Install Python packages
-RUN pip install --no-cache-dir playwright python-dotenv boto3 requests validators pyyaml \
+COPY services/scraper/requirements.txt requirements.txt
+RUN pip install -r requirements.txt --no-cache-dir  \
   && rm -rf /root/.cache/pip
 
 # 4. Copy source and scripts
