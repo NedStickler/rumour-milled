@@ -1,0 +1,6 @@
+playwright
+python-dotenv
+boto3
+requests
+validators
+pyyaml
