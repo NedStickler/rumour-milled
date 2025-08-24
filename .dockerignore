@@ -6,7 +6,6 @@ __pycache__
 *.pyd
 *.egg-info
 build
-dist
 notebooks
 data
 models
