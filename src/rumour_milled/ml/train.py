@@ -13,7 +13,8 @@ class Trainer:
         optimiser,
         scheduler=None,
         device=None,
-        save_best=True
+        save_best=True,
+        save_checkpoint=1
     ):
         self.device = device or torch.device(
             "cuda" if torch.cuda.is_available() else "cpu"
@@ -22,7 +23,9 @@ class Trainer:
         self.loss_fn = loss_fn
         self.optimiser = optimiser
         self.scheduler = scheduler
+
         self.save_best = save_best
+        self.save_checkpoint = save_checkpoint
         self.best_loss = np.inf
         self.best_model = None
 
@@ -58,7 +61,11 @@ class Trainer:
             if self.scheduler:
                 self.scheduler.step()
                 output_str += f" | lr: {self.scheduler.get_last_lr()[0]}"
-            if self.save_best and val_loss < self.best_loss:
+            if (
+                self.save_best and
+                epoch % self.save_checkpoint == 0 and
+                val_loss < self.best_loss
+            ):
                 self.best_loss = val_loss
                 self.best_model = self._model
 
