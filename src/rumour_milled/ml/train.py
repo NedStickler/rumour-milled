@@ -1,9 +1,6 @@
 import torch
 import numpy as np
 
-# TODO:
-# - Model saving with S3
-
 
 class Trainer:
     def __init__(
