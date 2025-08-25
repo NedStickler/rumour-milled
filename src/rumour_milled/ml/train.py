@@ -1,5 +1,5 @@
 import torch
-
+import numpy as np
 
 # TODO:
 # - Model saving with S3
@@ -13,6 +13,7 @@ class Trainer:
         optimiser,
         scheduler=None,
         device=None,
+        save_best=True
     ):
         self.device = device or torch.device(
             "cuda" if torch.cuda.is_available() else "cpu"
@@ -21,9 +22,14 @@ class Trainer:
         self.loss_fn = loss_fn
         self.optimiser = optimiser
         self.scheduler = scheduler
+        self.save_best = save_best
+        self.best_loss = np.inf
+        self.best_model = None
 
     @property
     def model(self):
+        if self.best_model:
+            return self.best_model
         return self._model
 
     def train_batch(self, X, y):
@@ -46,14 +52,15 @@ class Trainer:
     def train(self, train_loader, validation_loader, epochs):
         for epoch in range(1, epochs + 1):
             train_loss = self.train_epoch(train_loader)
-            output_str = f"Epoch {epoch}/{epochs} | train_loss: {train_loss}"
+            val_loss = self.evaluate(validation_loader)
+            output_str = f"Epoch {epoch}/{epochs} | train_loss: {train_loss} | val_loss: {val_loss}"
 
-            if validation_loader:
-                val_loss = self.evaluate(validation_loader)
-                output_str += f" | val_loss: {val_loss}"
             if self.scheduler:
                 self.scheduler.step()
                 output_str += f" | lr: {self.scheduler.get_last_lr()[0]}"
+            if self.save_best and val_loss < self.best_loss:
+                self.best_loss = val_loss
+                self.best_model = self._model
 
             print(output_str)
 
