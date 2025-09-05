@@ -1,0 +1,25 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+          "sagemaker:CreateTrainingJob",
+          "sagemaker:DescribeTrainingJob"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+          "iam:PassRole"
+      ],
+      "Resource": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/rm-dev-sagemaker-exec-role",
+      "Condition": {
+          "StringEquals": {
+              "iam:PassedToService": "sagemaker.amazonaws.com"
+          }
+      }
+    }
+  ]
+}

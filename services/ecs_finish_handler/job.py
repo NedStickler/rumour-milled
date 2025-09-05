@@ -36,6 +36,7 @@ def handler(event, context):
         },
         dependencies=["dist/rumour_milled-0.1.0-py3-none-any.whl"],
         output_path=f"s3://rumour-milled/runs/{run_id}/output/",
+        #code_location=f"s3://rumour-milled/runs/{run_id}/output/"
         sagemaker_session=session,
     )
     estimator.fit(wait=False, logs=False)
