@@ -9,7 +9,7 @@
   "containerDefinitions": [
     {
       "name": "scraper",
-      "image": "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/rm-dev-scraper:latest",
+      "image": "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/rumour-milled/rm-dev-scraper:latest",
       "essential": true,
       "logConfiguration": {
         "logDriver": "awslogs",
