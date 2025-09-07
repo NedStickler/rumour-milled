@@ -1,0 +1,20 @@
+{
+  "Name": "rm-dev-weekly-scrape",
+  "ScheduleExpression": "cron(0 9 ? * MON *)",
+  "FlexibleTimeWindow": { "Mode": "OFF" },
+  "Target": {
+    "Arn": "arn:aws:ecs:${AWS_REGION}:${AWS_ACCOUNT_ID}:cluster/rm-dev-ecs-cluster",
+    "RoleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/rm-dev-scheduler-role",
+    "EcsParameters": {
+      "LaunchType": "FARGATE",
+      "TaskDefinitionArn": "arn:aws:ecs:${AWS_REGION}:${AWS_ACCOUNT_ID}:task-definition/rm-dev-scraper-task",
+      "NetworkConfiguration": {
+        "awsvpcConfiguration": {
+          "Subnets": ["$AWS_SUBNET"],
+          "SecurityGroups": ["$AWS_SEC_GROUP"],
+          "AssignPublicIp": "ENABLED"
+        }
+      }
+    }
+  }
+}

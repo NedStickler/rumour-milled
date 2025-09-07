@@ -5,10 +5,10 @@
       "Sid": "RunSpecificTaskOnSpecificCluster",
       "Effect": "Allow",
       "Action": "ecs:RunTask",
-      "Resource": "arn:aws:ecs:${AWS_REGION}:${AWS_ACCOUNT_ID}:task-definition/rumour-milled-scraper-task:*",
+      "Resource": "arn:aws:ecs:${AWS_REGION}:${AWS_ACCOUNT_ID}:task-definition/rm-dev-scraper-task:*",
       "Condition": {
         "ArnEquals": {
-          "ecs:cluster": "arn:aws:ecs:${AWS_REGION}:${AWS_ACCOUNT_ID}:cluster/helpful-flamingo-zb2l05"
+          "ecs:cluster": "arn:aws:ecs:${AWS_REGION}:${AWS_ACCOUNT_ID}:cluster/rm-dev-ecs-cluster"
         }
       }
     },
