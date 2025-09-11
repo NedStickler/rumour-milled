@@ -1,0 +1,4 @@
+{
+    "logGroupName": "/ecs/rm-dev-scraper-log-group",
+    "retentionInDays": 14
+}
