@@ -10,7 +10,13 @@
         "dynamodb:UpdateItem",
         "dynamodb:DescribeTable"
       ],
-      "Resource": "arn:aws:dynamodb:${AWS_REGION}:${AWS_ACCOUNT_ID}:table/rm-headlines"
+      "Resource": "arn:aws:dynamodb:${AWS_REGION}:${AWS_ACCOUNT_ID}:table/Headlines"
+    },
+    {
+      "Sid": "ListTables",
+      "Effect": "Allow",
+      "Action": ["dynamodb:ListTables"],
+      "Resource": "arn:aws:dynamodb:${AWS_REGION}:${AWS_ACCOUNT_ID}:table/*"
     }
   ]
 }
