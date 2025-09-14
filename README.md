@@ -3,7 +3,7 @@ Detecting misinformation in news headlines.
 
 ## AWS Infrastructure
 
-EventBridger Schedule -> ECS (Headline Scraper) -> Lambda (On Scrape Finish) -> Sagemaker (Retrain Models)
+EventBridge Schedule -> ECS (Headline Scraper) -> Lambda (On Scrape Finish) -> Sagemaker (Retrain Models)
 
 ### Scheduler (EventBridge Schedule)
 
