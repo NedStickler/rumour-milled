@@ -1,6 +1,7 @@
 {
   "Name": "rm-dev-weekly-scrape",
-  "ScheduleExpression": "cron(0 9 ? * MON *)",
+  "ScheduleExpression": "cron(00 09 ? * MON *)",
+  "ScheduleExpressionTimezone": "UTC",
   "FlexibleTimeWindow": { "Mode": "OFF" },
   "Target": {
     "Arn": "arn:aws:ecs:${AWS_REGION}:${AWS_ACCOUNT_ID}:cluster/rm-dev-ecs-cluster",
