@@ -1,5 +1,5 @@
 # 1. Base image with Playwright and Python preinstalled
-FROM mcr.microsoft.com/playwright/python:v1.54.0-noble
+FROM mcr.microsoft.com/playwright/python:v1.55.0-noble
 
 # 2. Set working directory
 WORKDIR /app

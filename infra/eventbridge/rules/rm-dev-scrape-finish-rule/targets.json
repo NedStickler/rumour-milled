@@ -1,0 +1,6 @@
+[
+  {
+    "Id": "scrape-finish",
+    "Arn": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT_ID}:function:rm-dev-lambda-scrape-finish-handler"
+  }
+]

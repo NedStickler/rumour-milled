@@ -1,0 +1,13 @@
+{
+  "clusterName": "rm-dev-ecs-cluster",
+  "capacityProviders": ["FARGATE", "FARGATE_SPOT"],
+  "defaultCapacityProviderStrategy": [
+    { "capacityProvider": "FARGATE", "base": 1, "weight": 1 }
+  ],
+  "settings": [
+    { "name": "containerInsights", "value": "enabled" }
+  ],
+  "configuration": {
+    "executeCommandConfiguration": { "logging": "DEFAULT" }
+  }
+}
