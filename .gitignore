@@ -199,3 +199,4 @@ models/
 !src/rumour_milled/ml/models/
 .VSCodeCounter/
 *.whl
+todo.md
