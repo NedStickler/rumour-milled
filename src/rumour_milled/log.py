@@ -9,7 +9,7 @@ RUN_ID: contextvars.ContextVar[str | None] = contextvars.ContextVar("RUN_ID", de
 COMPONENT: contextvars.ContextVar[str | None] = contextvars.ContextVar("COMPONENT", default=None)
 
 
-class JsonFormatter(logging.formatter):
+class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         ts = datetime.now(timezone.utc).isoformat()
         base = {
