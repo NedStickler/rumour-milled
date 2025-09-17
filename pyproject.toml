@@ -35,6 +35,9 @@ dependencies = [
     "typer (>=0.17.4,<0.18.0)",
 ]
 
+[project.scripts]
+rumour-milled = "rumour_milled.cli:app"
+
 [tool.poetry]
 packages = [{include = "rumour_milled", from = "src"}]
 
