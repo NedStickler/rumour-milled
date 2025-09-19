@@ -1,4 +1,4 @@
-from rumour_milled.utils.utils import clean_headlines
+from rumour_milled.utils import clean_headlines
 
 
 def test_removes_newlines_trims_and_keeps_long_enough():
