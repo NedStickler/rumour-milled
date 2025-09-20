@@ -28,5 +28,17 @@ def test_put_items(headline_store):
     items = headline_store.table.scan()
     assert items.get("Items") == headlines
 
-    
-        
+
+def test_create_table(headline_store):
+    headline_store.create_table("test")
+    assert headline_store._table_exists("test")
+
+
+def test_parse_and_append(headline_store):
+    items = [
+        {"headline": "test1", "label": 0},
+        {"headline": "test2", "label": 1},
+    ]
+    lst = []
+    headline_store._HeadlineStorage__parse_and_append(lst, items)
+    assert lst == [("test1", 0), ("test2", 1)]

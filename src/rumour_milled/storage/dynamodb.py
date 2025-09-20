@@ -20,7 +20,7 @@ class HeadlineStorage:
         load_dotenv()
         self.db = boto3.resource("dynamodb", region_name=region_name, **kwargs)
         if not self._table_exists("Headlines"):
-            self.table = self.create_table()
+            self.table = self.create_table("Headlines")
         else:
             self.table = self.db.Table("Headlines")
 
@@ -35,14 +35,14 @@ class HeadlineStorage:
         """
         return table_name in [table.name for table in self.db.tables.all()]
 
-    def create_table(self):
+    def create_table(self, name):
         """Create the 'Headlines' DynamoDB table if it does not exist.
 
         Returns:
             Table: The created DynamoDB Table resource.
         """
         table = self.db.create_table(
-            TableName="Headlines",
+            TableName=name,
             KeySchema=[
                 {"AttributeName": "headline", "KeyType": "HASH"},
                 {"AttributeName": "label", "KeyType": "RANGE"},
