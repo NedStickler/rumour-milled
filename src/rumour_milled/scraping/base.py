@@ -289,14 +289,11 @@ class BaseScraper:
         elements = await self.get_elements(page)
         hrefs = await self.get_hrefs(page)
 
-        elements_text = []
-        for element in elements:
-            elements_text.append(await element.inner_text())
         for href in hrefs:
             if not await self.already_seen(href):
                 await self.queue.put(href)
         async with self.write_lock:
-            self.items.extend(elements_text)
+            self.items.extend(elements)
 
     async def can_visit(self, url: str) -> bool:
         """Check if a URL can be visited (valid, not visited, allowed by robots.txt).
@@ -351,9 +348,10 @@ class BaseScraper:
         Returns:
             list[str]: List of element handles matching the locator strings.
         """
-        elements = []
+        raw_elements = []
         for locator_string in self.locator_strings:
-            elements += await page.locator(locator_string).all()
+            raw_elements += await page.locator(locator_string).all()
+        elements = [element.inner_text() for element in raw_elements]
         return elements
 
     async def get_hrefs(self, page) -> list[str]:
