@@ -1,5 +1,5 @@
 from rumour_milled.scraping.base import BaseScraper
-from rumour_milled.utils.utils import clean_headlines
+from rumour_milled.utils import clean_headlines
 from rumour_milled.storage.dynamodb import HeadlineStorage
 from playwright.sync_api import TimeoutError
 import logging
