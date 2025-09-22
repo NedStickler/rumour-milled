@@ -40,42 +40,28 @@ class RobotsTxtParser(RobotFileParser):
 
 
 class HtmlParser:
-    def __init__(
-        self,
-        html_content: str
-    ):
+    def __init__(self, html_content: str):
         self.soup = BeautifulSoup(html_content, "html.parser")
-    
+
     def parse_hrefs(self):
-        return [
-            a.get("href") 
-            for a in self.soup.find_all("a")
-        ]
-    
-    def parse_headlines(
-        self,
-        attr_searches: dict[str, list],
-        exact_match: bool = False
-    ):
+        return [a.get("href") for a in self.soup.find_all("a")]
+
+    def parse_headlines(self, attrs: dict[str, list], exact_match: bool = False):
         if not exact_match:
-            for k, v in attr_searches.items():
-                attr_searches[k] = re.compile(rf"(?i).*{v}.*")
+            attrs = {k: re.compile(rf"(?i).*{v}.*") for k, v in attrs.items()}
 
-        results = [
-            result.text
-            for result in self.soup.find_all(attrs=attr_searches)
-        ]
-        return results
-
-        
+        headlines = []
+        for k, v in attrs.items():
+            headlines += [
+                headline.text for headline in self.soup.find_all(attrs={k: v})
+            ]
+        return headlines
 
 
 if __name__ == "__main__":
     with open("tests/scraping/test.html", "r") as f:
         html_content = f.read()
     parser = HtmlParser(html_content)
-    attrs = {
-        "attr": "headline"
-    }
-    results = parser.parse_headlines(attrs)
-    print(results)
+    attrs = {"test1": "headline", "attr": "headline", "another-attr": "headline"}
+    headlines = parser.parse_headlines(attrs)
+    print(headlines)

@@ -10,28 +10,26 @@ def test_html():
 
 def test_parse_hrefs(test_html):
     parser = HtmlParser(test_html)
-    hrefs = [
-        "https://example.com/test1",
-        "https://example.com/test2"
-    ]
+    hrefs = [f"https://example.com/test{i}" for i in range(1, 4)]
     assert parser.parse_hrefs() == hrefs
 
 
 def test_parse_headlines_exact(test_html):
     parser = HtmlParser(test_html)
-    headlines = [
-        f"Test Headline {i+1}"
-        for i in range(3)
-    ]
+    headlines = [f"Test Headline {i}" for i in range(1, 4)]
     attrs = {"class": "headline"}
-    assert parser.parse_headlines(attr_searches=attrs, exact_match=True) == headlines
+    assert parser.parse_headlines(attrs=attrs, exact_match=True) == headlines
 
 
 def test_parse_headlines_fuzzy(test_html):
     parser = HtmlParser(test_html)
-    headlines = [
-        f"Test Headline {i+1}"
-        for i in range(6)
-    ]
+    headlines = [f"Test Headline {i}" for i in range(1, 7)]
     attrs = {"class": "headline"}
-    assert parser.parse_headlines(attr_searches=attrs) == headlines
+    assert parser.parse_headlines(attrs=attrs) == headlines
+
+
+def test_parse_attrs(test_html):
+    parser = HtmlParser(test_html)
+    headlines = [f"Test Headline {i}" for i in range(7, 10)]
+    attrs = {"test1": "headline", "attr": "headline", "another-attr": "headline"}
+    assert parser.parse_headlines(attrs=attrs) == headlines
