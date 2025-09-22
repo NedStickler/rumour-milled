@@ -62,6 +62,6 @@ if __name__ == "__main__":
     with open("tests/scraping/test.html", "r") as f:
         html_content = f.read()
     parser = HtmlParser(html_content)
-    attrs = {"test1": "headline", "attr": "headline", "another-attr": "headline"}
+    attrs = {"class": "multiple_headlines"}
     headlines = parser.parse_headlines(attrs)
     print(headlines)
