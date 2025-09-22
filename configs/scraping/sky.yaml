@@ -1,6 +1,6 @@
 root: https://news.sky.com
-locator_strings:
-- '[class*="headline"]'
+attrs:
+  class: headlines
 robots_txt_url: "https://news.sky.com/robots.txt"
 ignore_robots_txt: false
 max_pages: 500

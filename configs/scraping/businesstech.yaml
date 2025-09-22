@@ -1,6 +1,6 @@
 root: "https://businesstech.co.za"
-locator_strings:
-- '[class*="entry-title"]'
+attrs:
+  class: entry-title
 robots_txt_url: "https://businesstech.co.za/robots.txt"
 ignore_robots_txt: false
 max_pages: 500

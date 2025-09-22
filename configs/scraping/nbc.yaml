@@ -1,6 +1,6 @@
 root: "https://www.nbcnews.com"
 locator_strings:
-- '[class*="headline"]'
+  class: headline
 robots_txt_url: "https://www.nbcnews.com/robots.txt"
 ignore_robots_txt: false
 max_pages: 500
