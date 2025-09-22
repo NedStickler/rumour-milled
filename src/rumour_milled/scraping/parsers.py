@@ -46,22 +46,11 @@ class HtmlParser:
     def parse_hrefs(self):
         return [a.get("href") for a in self.soup.find_all("a")]
 
-    def parse_headlines(self, attrs: dict[str, list], exact_match: bool = False):
+    def parse_text(self, attrs: dict[str, list], exact_match: bool = False):
         if not exact_match:
             attrs = {k: re.compile(rf"(?i).*{v}.*") for k, v in attrs.items()}
 
-        headlines = []
+        text = []
         for k, v in attrs.items():
-            headlines += [
-                headline.text for headline in self.soup.find_all(attrs={k: v})
-            ]
-        return headlines
-
-
-if __name__ == "__main__":
-    with open("tests/scraping/test.html", "r") as f:
-        html_content = f.read()
-    parser = HtmlParser(html_content)
-    attrs = {"class": "multiple_headlines"}
-    headlines = parser.parse_headlines(attrs)
-    print(headlines)
+            text += [t.text for t in self.soup.find_all(attrs={k: v})]
+        return text

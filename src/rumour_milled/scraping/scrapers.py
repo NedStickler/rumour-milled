@@ -35,7 +35,11 @@ class YahooScraper(HeadlineScraper):
         Args:
             **kwargs: Additional keyword arguments for BaseScraper.
         """
-        super().__init__(root="https://news.yahoo.com", **kwargs)
+        super().__init__(
+            root="https://news.yahoo.com",
+            config_path="configs/scraping/yahoo.yaml",
+            **kwargs
+        )
 
     async def deal_with_cookies(self, page) -> None:
         """Handle Yahoo's cookie consent dialog by clicking the 'reject' button.
@@ -207,3 +211,8 @@ class HeraldScraper(HeadlineScraper):
             await page.wait_for_load_state()
         except TimeoutError:
             self.logger.error("Failed to find cookies management")
+
+
+if __name__ == "__main__":
+    scraper = YahooScraper(max_pages=10)
+    scraper.run()

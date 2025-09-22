@@ -18,24 +18,24 @@ def test_parse_headlines_exact(test_html):
     parser = HtmlParser(test_html)
     headlines = [f"Test Headline {i}" for i in range(1, 4)]
     attrs = {"class": "headline"}
-    assert parser.parse_headlines(attrs=attrs, exact_match=True) == headlines
+    assert parser.parse_text(attrs=attrs, exact_match=True) == headlines
 
 
 def test_parse_headlines_fuzzy(test_html):
     parser = HtmlParser(test_html)
     headlines = [f"Test Headline {i}" for i in range(1, 7)]
     attrs = {"class": "headline"}
-    assert parser.parse_headlines(attrs=attrs) == headlines
+    assert parser.parse_text(attrs=attrs) == headlines
 
 
 def test_parse_attrs(test_html):
     parser = HtmlParser(test_html)
     headlines = [f"Test Headline {i}" for i in range(7, 10)]
     attrs = {"test1": "headline", "attr": "headline", "another-attr": "headline"}
-    assert parser.parse_headlines(attrs=attrs) == headlines
+    assert parser.parse_text(attrs=attrs) == headlines
 
 
 def test_nested_headlines(test_html):
     parser = HtmlParser(test_html)
     attrs = {"class": "multiple"}
-    assert len(parser.parse_headlines(attrs, exact_match=True)) == 1
+    assert len(parser.parse_text(attrs, exact_match=True)) == 1

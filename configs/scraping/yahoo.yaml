@@ -1,9 +1,7 @@
 root: "https://news.yahoo.com"
-locator_strings:
-- '[data-test-locator="headline"]'
-- '[data-test-locator="item-title"]'
-- '[data-test-locator="stream-item-title"]'
-- '[class*="headline"]'
+attrs:
+  data-test-locator: headline
+  class: headline
 robots_txt_url: "https://news.yahoo.com/robots.txt"
 ignore_robots_txt: false
 max_pages: 500
