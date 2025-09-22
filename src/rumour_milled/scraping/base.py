@@ -351,7 +351,7 @@ class BaseScraper:
         raw_elements = []
         for locator_string in self.locator_strings:
             raw_elements += await page.locator(locator_string).all()
-        elements = [element.inner_text() for element in raw_elements]
+        elements = [await element.inner_text() for element in raw_elements]
         return elements
 
     async def get_hrefs(self, page) -> list[str]:

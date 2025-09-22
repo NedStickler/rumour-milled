@@ -1,18 +1,12 @@
 <body>
-    <div>
-        <h1>This is a title</h1>
-        <p>This might be an interesting description</p>
+    <div tests="normal_headlines">
+        <h1 class="headline">Test Headline 1</h1>
+        <p class="headline">Test Headline 2</p>
+        <div class="headline"><a href="https://example.com/test1">Test Headline 3</a></div>
     </div>
-    <div>
-        <p>This is some more content.</p>
-        <p>This is even more content, including a <a href="https://example.com/">link</a></p>
-        <a class="headline">Yo!</a>
-    </div>
-    <div>
-        <p>Empty! <a href="https://example.com/empty"></a></p>
-        <a class="empty_headline"></a>
-        <a class="long_headline">A reaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaally long headline...</a>
-        <div class="Headline">Text</div>
-        <h3>A title headline</h3>
+    <div tests="fuzzy_match_headlines">
+        <h1 class="headline1">Test Headline 4</h1>
+        <p class="headline-but-different">Test Headline 5</p>
+        <div class="headline-123456"><a href="https://example.com/test2">Test Headline 6</a></div>
     </div>
 </body>
