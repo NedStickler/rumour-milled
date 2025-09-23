@@ -126,3 +126,29 @@ async def test_save_checkpoint(scraper, monkeypatch):
     await asyncio.wait_for(scraper.process_queue(), timeout=10)
 
     assert recorder["saves"] == 2
+
+
+@pytest.mark.asyncio
+async def test_failures_captured(scraper, monkeypatch):
+    recorder = {
+        "new_page_calls": 0,
+        "goto_calls": [],
+        "close_calls": 0,
+        "scrapes": 0,
+        "saves": 0,
+    }
+    scraper.context = FakeContext(recorder)
+    scraper.max_pages = 2
+
+    class Bang(Exception):
+        pass
+
+    async def fake_scrape(url, page):
+        raise Bang("Boom")
+
+    monkeypatch.setattr(scraper, "scrape_page", fake_scrape)
+    await scraper.queue.put("https://example.com/test1")
+    await asyncio.wait_for(scraper.process_queue(), timeout=15)
+
+    assert len(scraper.failures) == 1
+    assert isinstance(scraper.failures[0][1], Bang)
