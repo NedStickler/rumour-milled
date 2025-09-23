@@ -336,6 +336,16 @@ class BaseScraper:
         """
         if url[0] == "/":
             return self.root.rstrip("/") + url
+        if url[0] == "?":
+            return self.root.rstrip("/") + url
+        if url[:2] == "..":
+            return (
+                "https://"
+                + "".join(self.root.replace("https://", "").split("/")[-2])
+                + url[2:]
+            )
+        if url[:2] == "./":
+            return self.root.rstrip("/") + url[1:]
         return url
 
     async def save(self) -> None:
