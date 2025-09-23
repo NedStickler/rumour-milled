@@ -85,3 +85,78 @@ async def test_scrape_page(monkeypatch, scraper):
     href1 = await scraper.queue.get()
     href2 = await scraper.queue.get()
     assert [href1, href2] == ["/rel", "https://example.com/test1"]
+
+
+@pytest.mark.asyncio
+async def test_respects_normalised_seen(monkeypatch, scraper):
+    recorder = {"goto_calls": []}
+    page = FakePage(recorder)
+    hrefs = ["/rel", "/other"]
+
+    class FakeHtmlParser:
+        def __init__(self, html):
+            self._html = html
+
+        def parse_text(self, attrs):
+            return []
+
+        def parse_hrefs(self):
+            return hrefs
+
+    monkeypatch.setattr("rumour_milled.scraping.base.HtmlParser", FakeHtmlParser)
+    normalised_rel = scraper.normalise_url("/rel")
+    async with scraper.seen_lock:
+        scraper.seen.add(normalised_rel)
+    await scraper.scrape_page("https://example.com/test1", page)
+
+    assert scraper.queue.qsize() == 1
+    assert await scraper.queue.get() == "/other"
+
+
+@pytest.mark.asyncio
+async def test_scrape_empty_page(monkeypatch, scraper):
+    recorder = {"goto_calls": []}
+    page = FakePage(recorder)
+
+    class FakeHtmlParser:
+        def __init__(self, html):
+            self._html = html
+
+        def parse_text(self, attrs):
+            return []
+
+        def parse_hrefs(self):
+            return []
+
+    monkeypatch.setattr("rumour_milled.scraping.base.HtmlParser", FakeHtmlParser)
+    await scraper.scrape_page("https://example.com/test1", page)
+    async with scraper.visited_lock:
+        assert "https://example.com/test1" in scraper.visited
+    assert scraper.queue.qsize() == 0
+    assert scraper.items == []
+
+
+@pytest.mark.asyncio
+async def test_failure_propagation(monkeypatch, scraper):
+    recorder = {"goto_calls": []}
+    page = FakePage(recorder)
+
+    class FakeHtmlParser:
+        def __init__(self, html):
+            self._html = html
+
+        def parse_text(self, attrs):
+            raise Exception("Bang 1")
+
+        def parse_hrefs(self):
+            []
+
+    monkeypatch.setattr("rumour_milled.scraping.base.HtmlParser", FakeHtmlParser)
+
+    with pytest.raises(Exception):
+        await scraper.scrape_page("https://example.com/test1", page)
+
+    async with scraper.visited_lock:
+        assert "https://example.com/test1" in scraper.visited
+    assert scraper.queue.qsize() == 0
+    assert scraper.items == []
