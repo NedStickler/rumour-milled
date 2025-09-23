@@ -141,12 +141,15 @@ async def test_failure_propagation(monkeypatch, scraper):
     recorder = {"goto_calls": []}
     page = FakePage(recorder)
 
+    class Bang(Exception):
+        pass
+
     class FakeHtmlParser:
         def __init__(self, html):
             self._html = html
 
         def parse_text(self, attrs):
-            raise Exception("Bang 1")
+            raise Bang("Bang")
 
         def parse_hrefs(self):
             []
