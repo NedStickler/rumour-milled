@@ -152,3 +152,17 @@ async def test_failures_captured(scraper, monkeypatch):
 
     assert len(scraper.failures) == 1
     assert isinstance(scraper.failures[0][1], Bang)
+
+
+@pytest.mark.asyncio
+async def test_already_seen(scraper):
+    href = "/test1"
+    n = 20
+
+    results = await asyncio.gather(*[scraper.already_seen(href) for _ in range(n)])
+    assert results.count(False) == 1
+    assert results.count(True) == n - 1
+
+    normalised_href = scraper.normalise_url(href)
+    async with scraper.seen_lock:
+        assert normalised_href in scraper.seen
