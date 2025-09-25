@@ -1,0 +1,13 @@
+services:
+  localstack:
+    image: localstack/localstack:latest
+    environment:
+      - GATEWAY_LISTEN=4566
+      - AWS_DEFAULT_REGION=eu-west-2
+      - SERVICES=
+    ports:
+      - "4566:4566"
+    volumes:
+      - "localstack-data:/var/lib/localstack"
+volumes:
+  localstack-data:
