@@ -1,5 +1,7 @@
 import requests
+import re
 from urllib.robotparser import RobotFileParser
+from bs4 import BeautifulSoup
 
 
 class RobotsTxtParser(RobotFileParser):
@@ -35,3 +37,20 @@ class RobotsTxtParser(RobotFileParser):
         elif res.status_code >= 400 and res.status_code < 500:
             self.allow_all = True
         self.parse(res.text.splitlines())
+
+
+class HtmlParser:
+    def __init__(self, html_content: str):
+        self.soup = BeautifulSoup(html_content, "html.parser")
+
+    def parse_hrefs(self):
+        return [a.get("href") for a in self.soup.find_all("a")]
+
+    def parse_text(self, attrs: dict[str, list], exact_match: bool = False):
+        if not exact_match:
+            attrs = {k: re.compile(rf"(?i).*{v}.*") for k, v in attrs.items()}
+
+        text = []
+        for k, v in attrs.items():
+            text += [t.text for t in self.soup.find_all(attrs={k: v})]
+        return text

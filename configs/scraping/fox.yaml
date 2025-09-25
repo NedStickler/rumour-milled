@@ -1,6 +1,6 @@
 root: "https://www.foxnews.com"
-locator_strings:
-- '[class*="title"]'
+attrs:
+  class: title
 robots_txt_url: "https://www.foxnews.com/robots.txt"
 ignore_robots_txt: false
 max_pages: 500

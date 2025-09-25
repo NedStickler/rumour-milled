@@ -5,7 +5,7 @@ from playwright.async_api import async_playwright
 from os import PathLike
 from pathlib import Path
 from validators.url import url as validate_url
-from rumour_milled.scraping.parsers import RobotsTxtParser
+from rumour_milled.scraping.parsers import RobotsTxtParser, HtmlParser
 from typing import Optional
 from time import perf_counter
 
@@ -58,7 +58,7 @@ class BaseScraper:
     def __init__(
         self,
         root: Optional[str] = None,
-        locator_strings: Optional[list[str]] = None,
+        attrs: Optional[list[str]] = None,
         robots_txt_url: Optional[str] = None,
         ignore_robots_txt: Optional[bool] = None,
         max_pages: Optional[int] = None,
@@ -88,9 +88,7 @@ class BaseScraper:
         self.config = self.load_config(config_path)
 
         self.root = self.get_setting(param=root, key="root", required=True)
-        self.locator_strings = self.get_setting(
-            param=locator_strings, key="locator_strings", required=True
-        )
+        self.attrs = self.get_setting(param=attrs, key="attrs", required=True)
         self.ignore_robots_txt = self.get_setting(
             param=ignore_robots_txt, key="ignore_robots_txt", default=False
         )
@@ -286,17 +284,15 @@ class BaseScraper:
         async with self.visited_lock:
             self.visited.add(url)
 
-        elements = await self.get_elements(page)
-        hrefs = await self.get_hrefs(page)
+        html_parser = HtmlParser(await page.content())
+        elements = html_parser.parse_text(attrs=self.attrs)
+        hrefs = html_parser.parse_hrefs()
 
-        elements_text = []
-        for element in elements:
-            elements_text.append(await element.inner_text())
         for href in hrefs:
             if not await self.already_seen(href):
                 await self.queue.put(href)
         async with self.write_lock:
-            self.items.extend(elements_text)
+            self.items.extend(elements)
 
     async def can_visit(self, url: str) -> bool:
         """Check if a URL can be visited (valid, not visited, allowed by robots.txt).
@@ -340,35 +336,17 @@ class BaseScraper:
         """
         if url[0] == "/":
             return self.root.rstrip("/") + url
+        if url[0] == "?":
+            return self.root.rstrip("/") + url
+        if url[:2] == "..":
+            return (
+                "https://"
+                + "".join(self.root.replace("https://", "").split("/")[-2])
+                + url[2:]
+            )
+        if url[:2] == "./":
+            return self.root.rstrip("/") + url[1:]
         return url
-
-    async def get_elements(self, page) -> list[str]:
-        """Get elements matching the locator strings on the current page.
-
-        Args:
-            page: Playwright page object.
-
-        Returns:
-            list[str]: List of element handles matching the locator strings.
-        """
-        elements = []
-        for locator_string in self.locator_strings:
-            elements += await page.locator(locator_string).all()
-        return elements
-
-    async def get_hrefs(self, page) -> list[str]:
-        """Get href attributes from all anchor tags on the current page.
-
-        Args:
-            page: Playwright page object.
-
-        Returns:
-            list[str]: List of href URLs found on the page.
-        """
-        hrefs = await page.eval_on_selector_all(
-            "a[href]", "elements => elements.map(e => e.href)"
-        )
-        return hrefs
 
     async def save(self) -> None:
         """Save the scraped items to the specified save_path as JSON, appending to existing data."""
