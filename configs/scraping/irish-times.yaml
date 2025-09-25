@@ -1,6 +1,6 @@
 root: "https://www.irishtimes.com"
 locator_strings:
-- '[class*="heading"]'
+  class: heading
 robots_txt_url: "https://www.irishtimes.com/robots.txt"
 ignore_robots_txt: false
 max_pages: 500

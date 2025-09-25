@@ -1,6 +1,6 @@
 root: "www.example.com"
-locator_strings:
-- '[class*="headline"]'
+attrs:
+  class: headline
 robots_txt_url: "www.example.com/robots.txt"
 ignore_robots_txt: false
 max_pages: 500
