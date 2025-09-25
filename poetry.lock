@@ -261,6 +261,24 @@ rsa = ">=3.1.2,<4.8"
 s3transfer = ">=0.14.0,<0.15.0"
 
 [[package]]
+name = "awscli-local"
+version = "0.22.2"
+description = "Thin wrapper around the \"aws\" command line interface for use with LocalStack"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "awscli_local-0.22.2-py3-none-any.whl", hash = "sha256:1901ebef343ba8cbde06f9f6406b5415ef53e93296718c2c31c9d49b0b09bd9d"},
+    {file = "awscli_local-0.22.2.tar.gz", hash = "sha256:07c532c372753bf5f15426451dc91d6eec9de8779748049329a9a882bdac8a0b"},
+]
+
+[package.dependencies]
+localstack-client = "*"
+
+[package.extras]
+ver1 = ["awscli"]
+
+[[package]]
 name = "backcall"
 version = "0.2.0"
 description = "Specifications for callback functions passed in to an API"
@@ -1883,6 +1901,23 @@ files = [
     {file = "llvmlite-0.44.0-cp313-cp313-win_amd64.whl", hash = "sha256:2fb7c4f2fb86cbae6dca3db9ab203eeea0e22d73b99bc2341cdf9de93612e930"},
     {file = "llvmlite-0.44.0.tar.gz", hash = "sha256:07667d66a5d150abed9157ab6c0b9393c9356f229784a4385c02f99e94fc94d4"},
 ]
+
+[[package]]
+name = "localstack-client"
+version = "2.10"
+description = "A lightweight Python client for LocalStack."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "localstack_client-2.10.tar.gz", hash = "sha256:732a07e23fffd6a581af2714bbe006ad6f884ac4f8ac955211a8a63321cdc409"},
+]
+
+[package.dependencies]
+boto3 = "*"
+
+[package.extras]
+test = ["black", "coverage", "flake8", "isort", "localstack", "pytest"]
 
 [[package]]
 name = "markdown-it-py"
@@ -5424,4 +5459,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.13"
-content-hash = "c4bbf397f0b08a9691886d871241ceb1a8c14644c7597bb25561c7c002e94037"
+content-hash = "99d12ef3343f2b5ce1422efd845784b94582f6efd6e524e4106509b479d06f05"
