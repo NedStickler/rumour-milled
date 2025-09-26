@@ -14,6 +14,8 @@ services:
     environment:
       - AWS_REGION=eu-west-2
       - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
       - BOOTSTRAP_SCRIPT=/work/bootstrap.sh
     volumes:
       - ./bootstrap:/work
@@ -22,6 +24,6 @@ services:
       localstack:
         condition: service_started
     entrypoint: ["/bin/sh", "-c"]
-    command: ["chmod +x $BOOTSTRAP_SCRIPT && $BOOTSTRAP_SCRIPT"]
+    command: ["chmod +x $$BOOTSTRAP_SCRIPT && $$BOOTSTRAP_SCRIPT"]
 volumes:
   localstack-data:
