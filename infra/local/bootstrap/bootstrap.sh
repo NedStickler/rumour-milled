@@ -7,9 +7,9 @@ TABLE="rm-local-headlines-table"
 
 # S3
 awslocal s3api create-bucket \
-    --bucket "${BUCKET}" \
-    --create-bucket-configuration LocationConstraint="${AWS_REGION}"
-echo "S3 ready. Bucket=${BUCKET}"
+    --bucket $BUCKET \
+    --create-bucket-configuration LocationConstraint=$AWS_REGION
+echo "S3 ready ($BUCKET)"
 
 # DynamoDB
 awslocal dynamodb create-table \
@@ -22,4 +22,4 @@ awslocal dynamodb create-table \
         AttributeName=timestamp,KeyType=RANGE \
     --billing-mode PROVISIONED \
     --provisioned-throughput ReadCapacityUnits=10,WriteCapacityUnits=10
-echo "DynamoDB ready. Table=${TABLE}"
+echo "DynamoDB ready ($TABLE)"
