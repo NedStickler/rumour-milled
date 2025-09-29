@@ -1872,6 +1872,24 @@ files = [
 ]
 
 [[package]]
+name = "lark"
+version = "1.3.0"
+description = "a modern parsing library"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "lark-1.3.0-py3-none-any.whl", hash = "sha256:80661f261fb2584a9828a097a2432efd575af27d20be0fd35d17f0fe37253831"},
+    {file = "lark-1.3.0.tar.gz", hash = "sha256:9a3839d0ca5e1faf7cfa3460e420e859b66bcbde05b634e73c369c8244c5fa48"},
+]
+
+[package.extras]
+atomic-cache = ["atomicwrites"]
+interegular = ["interegular (>=0.3.1,<0.4.0)"]
+nearley = ["js2py"]
+regex = ["regex"]
+
+[[package]]
 name = "llvmlite"
 version = "0.44.0"
 description = "lightweight wrapper around basic LLVM functionality"
@@ -3743,6 +3761,22 @@ files = [
 cli = ["click (>=5.0)"]
 
 [[package]]
+name = "python-hcl2"
+version = "7.3.1"
+description = "A parser for HCL2"
+optional = false
+python-versions = ">=3.7.0"
+groups = ["main"]
+files = [
+    {file = "python_hcl2-7.3.1-py3-none-any.whl", hash = "sha256:6bf6036d3dffac04e05e6aa58ff6e9a3710bba2171325584dfd7b3f8c99c6d4d"},
+    {file = "python_hcl2-7.3.1.tar.gz", hash = "sha256:f8f55583703daf7bbcb595a33c68de891064d565974ea39998b81d15a4c4657b"},
+]
+
+[package.dependencies]
+lark = ">=1.1.5,<2.0"
+regex = ">=2024.4.16"
+
+[[package]]
 name = "pytz"
 version = "2025.2"
 description = "World timezone definitions, modern and historical"
@@ -4802,6 +4836,26 @@ files = [
 ]
 
 [[package]]
+name = "terraform-local"
+version = "0.24.1"
+description = "Thin wrapper script to run Terraform against LocalStack"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "terraform_local-0.24.1-py3-none-any.whl", hash = "sha256:159115b60851fd491d4e5037017078ad5e8d87d0f514a00c98d838ad8dab12a6"},
+    {file = "terraform_local-0.24.1.tar.gz", hash = "sha256:2cfaeb283a1753083f3f59be1a2e08d225286913633694d695b04bba9913ae91"},
+]
+
+[package.dependencies]
+localstack-client = "*"
+packaging = "*"
+python-hcl2 = "!=7.3.0"
+
+[package.extras]
+test = ["flake8", "localstack", "pytest"]
+
+[[package]]
 name = "threadpoolctl"
 version = "3.6.0"
 description = "threadpoolctl"
@@ -5459,4 +5513,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.13"
-content-hash = "99d12ef3343f2b5ce1422efd845784b94582f6efd6e524e4106509b479d06f05"
+content-hash = "b5780de4b0296573edcc17b0c0c9a2a0fd96a255f069e349750e7f8c7123c780"

@@ -9,21 +9,5 @@ services:
       - "4566:4566"
     volumes:
       - "localstack-data:/var/lib/localstack"
-  bootstrap:
-    image: amazon/aws-cli:2.17.40
-    environment:
-      - AWS_REGION=eu-west-2
-      - AWS_ENDPOINT_URL=http://localstack:4566
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
-      - BOOTSTRAP_SCRIPT=/work/bootstrap.sh
-    volumes:
-      - ./bootstrap:/work
-    working_dir: /work
-    depends_on:
-      localstack:
-        condition: service_started
-    entrypoint: ["/bin/sh", "-c"]
-    command: ["chmod +x $$BOOTSTRAP_SCRIPT && $$BOOTSTRAP_SCRIPT"]
 volumes:
   localstack-data:
