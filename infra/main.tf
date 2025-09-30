@@ -22,3 +22,8 @@ resource "aws_dynamodb_table" "headlines_db" {
     type = "S"
   }
 }
+
+# ECR
+resource "aws_ecr_repository" "scraper_repo" {
+  name = "rumour-milled/rm-${var.env}-scraper"
+}
