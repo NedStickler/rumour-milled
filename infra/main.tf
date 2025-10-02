@@ -23,7 +23,15 @@ resource "aws_dynamodb_table" "headlines_db" {
   }
 }
 
-# ECR
+# ECR Scraper Repo
 resource "aws_ecr_repository" "scraper_repo" {
-  name = "rumour-milled/rm-${var.env}-scraper"
+  count = vars.env != "local" ? 1 : 0
+  name = "rumour-milled/rm-${var.env}-scraper-repo"
 }
+
+# ECR Finish Handler Repo
+resource "aws_ecr_repository" "scraper_finish_handler_repo" {
+  count = vars.env != "local" ? 1 : 0
+  name = "rumour-milled/rm-${var.env}-scrape-finish-handler-repo"
+}
+
