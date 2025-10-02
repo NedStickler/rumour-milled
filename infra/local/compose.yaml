@@ -9,5 +9,14 @@ services:
       - "4566:4566"
     volumes:
       - "localstack-data:/var/lib/localstack"
+  registry:
+    image: registry:2
+    environment:
+      - REGISTRY_STORAGE_DELETE_ENABLED=true
+    ports:
+      - "5000:5000"
+    volumes:
+      - registry-data:/var/lib/registry
 volumes:
   localstack-data:
+  registry-data:
