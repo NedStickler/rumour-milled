@@ -8,7 +8,7 @@ def test_settings_defaults(monkeypatch):
     monkeypatch.delenv("LOG_LEVEL", raising=False)
     monkeypatch.delenv("AWS_REGION", raising=False)
     settings = load_settings()
-    assert settings.env == "dev"
+    assert settings.env == "local"
     assert settings.log_level == "INFO"
     assert settings.aws_region == "eu-west-2"
 

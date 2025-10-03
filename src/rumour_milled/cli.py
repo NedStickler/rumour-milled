@@ -40,31 +40,23 @@ def ping() -> None:
 
 # TODO: Add module type hint as `module: Literal["all", "scraping", ...] = "all` when Typer adds support (PR was completed 19/09/2025)
 @app.command()
-def test(module = "all", pytest_args: list[str] = []) -> None:
-    _boot()
-    log.log("run_tests", module=module, pytest_args=pytest_args)
-
-    if module == "all":
-        path = "."
-    elif module == "scraping":
-        path = "tests/scraping"
-    elif module == "storage":
-        path = "tests/storage"
-
-    pytest.main([path] + pytest_args)
+def test(pytest_path: str = "tests/", pytest_args: list[str] = []) -> None:
+    settings = _boot()
+    log.log("run_tests", pytest_path=pytest_path, pytest_args=pytest_args)
+    _run(["make", "-C", f"{settings.makefile_path}", f"ENV={settings.env}", f"PYTEST_PATH={pytest_path}", f"PYTEST_ARGS={pytest_args}", "test"])
 
 
 @app.command()
-def up(makefile_path: str = "infra/", env: str = "local") -> None:
-    _boot()
-    _run(["make", "-C", f"{makefile_path}", f"ENV={env}", "all"])
-    log.log("up", env=env)
+def up() -> None:
+    settings = _boot()
+    _run(["make", "-C", f"{settings.makefile_path}", f"ENV={settings.env}", "all"])
+    log.log("up", env=settings.env)
 
 
 @app.command()
-def down(makefile_path: str = "infra/") -> None:
-    _boot()
-    _run(["make", "-C", f"{makefile_path}", "down"])
+def down() -> None:
+    settings = _boot()
+    _run(["make", "-C", f"{settings.makefile_path}", "down"])
     log.log(down)
 
 
