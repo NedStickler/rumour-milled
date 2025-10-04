@@ -56,7 +56,21 @@ def up() -> None:
 def down() -> None:
     settings = _boot()
     _run(["make", "-C", f"{settings.makefile_path}", "down"])
-    log.log(down)
+    log.log("down")
+
+
+@app.command()
+def build() -> None:
+    settings = _boot()
+    _run(["make", "-C", f"{settings.makefile_path}", "build"])
+    log.log("build")
+
+
+@app.command()
+def all() -> None:
+    settings = _boot()
+    _run(["make", "-C", f"{settings.makefile_path}", "all"])
+    log.log("all")
 
 
 if __name__ == "__main__":
