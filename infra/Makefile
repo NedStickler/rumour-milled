@@ -1,8 +1,9 @@
 ENV ?= local
 AWS_REGION ?= eu-west-2
 AWS_ACCOUNT_ID ?= $(shell aws sts get-caller-identity --query Account --output text 2>/dev/null || echo 000000000000)
-PYTEST_PATH ?= tests/
-PYTEST_ARGS ?= null
+pytest_path ?= tests/
+pytest_args ?= null
+root_dir := $(abspath $(CURDIR)/..)
 
 ifeq ($(ENV),local)
 	REGISTRY := localhost:5000
@@ -15,7 +16,7 @@ IMAGES := rm-$(ENV)-scraper rm-$(ENV)-scrape-finish-handler
 .PHONY: test up down all
 
 test:
-	pytest $(PYTEST_PATH) $(PYTEST_ARGS)
+	(cd .. && pytest $(pytest_path))
 up:
 	docker compose -f local/compose.yaml up -d
 

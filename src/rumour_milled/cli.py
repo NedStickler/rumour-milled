@@ -38,12 +38,11 @@ def ping() -> None:
     log.log("ping", status="ok")
 
 
-# TODO: Add module type hint as `module: Literal["all", "scraping", ...] = "all` when Typer adds support (PR was completed 19/09/2025)
 @app.command()
-def test(pytest_path: str = "tests/", pytest_args: list[str] = []) -> None:
+def test(path: str = "tests/") -> None:
     settings = _boot()
-    log.log("run_tests", pytest_path=pytest_path, pytest_args=pytest_args)
-    _run(["make", "-C", f"{settings.makefile_path}", f"ENV={settings.env}", f"PYTEST_PATH={pytest_path}", f"PYTEST_ARGS={pytest_args}", "test"])
+    log.log("test", pytest_path=path)
+    _run(["make", "-C", f"{settings.makefile_path}", f"ENV={settings.env}", f"pytest_path={path}"])
 
 
 @app.command()
