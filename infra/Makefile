@@ -12,6 +12,8 @@ else
 	registry := $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
 endif
 
+# TODO: Add ECR repo creation for non-local
+
 .PHONY: test up down build all
 
 test:

@@ -55,21 +55,21 @@ def up() -> None:
 @app.command()
 def down() -> None:
     settings = _boot()
-    _run(["make", "-C", f"{settings.makefile_path}", "down"])
+    _run(["make", "-C", f"{settings.makefile_path}", f"ENV={settings.env}", "down"])
     log.log("down")
 
 
 @app.command()
 def build() -> None:
     settings = _boot()
-    _run(["make", "-C", f"{settings.makefile_path}", "build"])
+    _run(["make", "-C", f"{settings.makefile_path}", f"ENV={settings.env}", "build"])
     log.log("build")
 
 
 @app.command()
 def all() -> None:
     settings = _boot()
-    _run(["make", "-C", f"{settings.makefile_path}", "all"])
+    _run(["make", "-C", f"{settings.makefile_path}", f"ENV={settings.env}", "all"])
     log.log("all")
 
 
