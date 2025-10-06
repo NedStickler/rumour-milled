@@ -35,4 +35,8 @@ build:
 		docker push \
 			"$(registry)/rumour-milled/rm-$(ENV)-$$d:latest"; \
 	done
+scrape:
+	if [ "$(ENV)" = "local" ]; then \
+		docker run --rm rm-local-scraper; \
+	fi
 all: up build

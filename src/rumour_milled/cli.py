@@ -73,5 +73,13 @@ def all() -> None:
     log.log("all")
 
 
+@app.command()
+def run(service: str) -> None:
+    settings = _boot()
+    if service == "scrape":
+        _run(["make", "-C", f"{settings.makefile_path}", f"ENV={settings.env}", "scrape"])
+        log.log("scrape")
+
+
 if __name__ == "__main__":
     app()
