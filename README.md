@@ -5,8 +5,6 @@ Detecting misinformation in news headlines.
 
 LocalStack for building and testing.
 
-EventBridge Schedule -> ECS (Headline Scraper) -> Lambda (On Scrape Finish) -> Sagemaker (Retrain Models)
-
 ### Scheduler (EventBridge Schedule)
 
 - Schedule (rm-dev-weekly-scrape)
